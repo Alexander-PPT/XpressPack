@@ -1,0 +1,360 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600&display=swap');
+
+:root {
+  --bg: #f7f4ef;
+  --bg-soft: #fbfaf8;
+  --surface: #ffffff;
+  --text: #2c2a27;
+  --text-muted: #6c6760;
+  --accent: #1f8a70;
+  --accent-strong: #146b57;
+  --accent-soft: #e2f0ea;
+  --ink: #1b1a19;
+  --border: #e4ded5;
+  --shadow: 0 16px 30px rgba(26, 24, 21, 0.08);
+  --radius: 18px;
+  --radius-sm: 12px;
+  --radius-xs: 8px;
+  --font-body: 'Manrope', sans-serif;
+  --font-display: 'Space Grotesk', sans-serif;
+}
+
+
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--text);
+  background: radial-gradient(circle at top, #fdfbf8 0%, #f4efe7 45%, #eee7dc 100%);
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  border: none;
+  font-family: var(--font-body);
+  border-radius: var(--radius-xs);
+  padding: 12px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(31, 138, 112, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px rgba(31, 138, 112, 0.25);
+}
+
+button.primary {
+  background: var(--accent);
+}
+
+button.ghost {
+  background: transparent;
+  color: var(--accent-strong);
+  box-shadow: none;
+  border: 1px solid var(--border);
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.alert {
+  background: #fff0f0;
+  border: 1px solid #f0b4b4;
+  color: #a33434;
+  padding: 10px 14px;
+  border-radius: var(--radius-xs);
+  font-size: 14px;
+}
+
+.eyebrow {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  color: var(--text-muted);
+}
+
+.top-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 6vw;
+}
+
+.top-nav .logo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 22px;
+}
+
+.top-nav nav {
+  display: flex;
+  gap: 18px;
+}
+
+.tracking-page .hero {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 36px;
+  padding: 40px 6vw 80px;
+  align-items: center;
+}
+
+.hero-copy h1 {
+  font-family: var(--font-display);
+  font-size: 48px;
+  margin: 12px 0;
+}
+
+.tracking-form {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.tracking-form input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.ghost-card,
+.tracking-card,
+.stat-card,
+.table-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+}
+
+.tracking-card h3 {
+  font-family: var(--font-display);
+}
+
+.tracking-progress {
+  margin: 18px 0;
+}
+
+.tracking-bar {
+  height: 10px;
+  background: var(--accent-soft);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.tracking-bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.progress-recebido span {
+  background: #2e75b6;
+}
+
+.progress-viaje span {
+  background: #e67e22;
+}
+
+.progress-entregado span {
+  background: #27ae60;
+}
+
+.tracking-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.auth-shell {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+}
+
+.auth-card {
+  padding: 80px 10vw;
+  background: var(--surface);
+}
+
+.auth-card h1 {
+  font-family: var(--font-display);
+  margin-bottom: 6px;
+}
+
+.auth-form {
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.auth-form input {
+  padding: 12px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border);
+}
+
+.auth-aside {
+  padding: 80px 8vw;
+  background: linear-gradient(160deg, #f1ece4 0%, #e8e0d4 100%);
+}
+
+.auth-aside h2 {
+  font-family: var(--font-display);
+}
+
+.auth-aside ul {
+  padding-left: 18px;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+}
+
+.side-nav {
+  padding: 32px 24px;
+  background: #f1ece4;
+  border-right: 1px solid var(--border);
+}
+
+.side-nav nav {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.side-nav a {
+  padding: 8px 10px;
+  border-radius: var(--radius-xs);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.app-main {
+  padding: 36px 48px;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 28px;
+  margin: 0;
+}
+
+.table-card table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.table-card th,
+.table-card td {
+  text-align: left;
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.status-pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-recibido {
+  background: #e6f0ff;
+  color: #2e75b6;
+}
+
+.status-viaje {
+  background: #fff1e0;
+  color: #e67e22;
+}
+
+.status-entregado {
+  background: #e6f7ef;
+  color: #27ae60;
+}
+
+.report-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+.report-card {
+  text-align: left;
+  padding: 24px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 1024px) {
+  .tracking-page .hero,
+  .auth-shell,
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tracking-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .report-grid {
+    grid-template-columns: 1fr;
+  }
+}
