@@ -25,15 +25,16 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="auth-shell">
-      <div className="auth-card">
-        <h1>Acceso interno</h1>
-        <p className="muted">Panel de operaciones RutaSync</p>
+    <div className="grid min-h-screen grid-cols-1 md:grid-cols-2">
+      <div className="bg-white px-8 py-16 md:px-20">
+        <h1 className="font-display text-3xl">Acceso interno</h1>
+        <p className="mt-2 text-sm text-ink/60">Panel de operaciones RutaSync</p>
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <label>
+        <form onSubmit={handleSubmit} className="mt-8 grid gap-5">
+          <label className="field-label">
             Email
             <input
+              className="input"
               type="email"
               placeholder="operario@rutasync.com"
               value={email}
@@ -41,9 +42,10 @@ export default function LoginPage() {
               required
             />
           </label>
-          <label>
+          <label className="field-label">
             Contraseña
             <input
+              className="input"
               type="password"
               placeholder="••••••••"
               value={password}
@@ -51,18 +53,18 @@ export default function LoginPage() {
               required
             />
           </label>
-          {error ? <div className="alert">{error}</div> : null}
-          <button type="submit" disabled={loading}>
+          {error ? <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">{error}</div> : null}
+          <button className="btn" type="submit" disabled={loading}>
             {loading ? 'Ingresando...' : 'Ingresar'}
           </button>
         </form>
       </div>
-      <div className="auth-aside">
-        <h2>Control total de envios</h2>
-        <p>
+      <div className="bg-clay px-10 py-16 md:px-16">
+        <h2 className="font-display text-3xl">Control total de envios</h2>
+        <p className="mt-3 text-sm text-ink/70">
           Gestiona registros, estados, reportes y equipos desde un solo panel.
         </p>
-        <ul>
+        <ul className="mt-6 grid gap-3 text-sm text-ink/70">
           <li>Validacion RENIEC y tracking publico</li>
           <li>Notificaciones automaticas</li>
           <li>Reportes PDF en segundos</li>

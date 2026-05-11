@@ -1,26 +1,15 @@
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 
 export default function SideNav() {
-  const { user, logout } = useAuth();
-  const isAdmin = user?.rol === 'ADMIN';
-
   return (
-    <aside className="side-nav">
-      <div className="side-title">
-        <span>Panel</span>
-      </div>
-      <nav>
-        <Link to="/app">Dashboard</Link>
-        <Link to="/app/envios">Envios</Link>
-        {isAdmin && (
-          <>
-            <Link to="/app/reportes">Reportes</Link>
-            <Link to="/app/usuarios">Usuarios</Link>
-            <Link to="/app/sucursales">Sucursales</Link>
-          </>
-        )}
-        <button onClick={logout} className="ghost" style={{ marginTop: '24px' }}>Cerrar Sesión</button>
+    <aside className="bg-clay px-6 py-10">
+      <div className="font-display text-lg">Panel</div>
+      <nav className="mt-6 grid gap-3 text-sm font-semibold text-ink/70">
+        <Link className="rounded-lg bg-white/70 px-3 py-2" to="/app">Dashboard</Link>
+        <Link className="rounded-lg bg-white/70 px-3 py-2" to="/app/envios">Envios</Link>
+        <Link className="rounded-lg bg-white/70 px-3 py-2" to="/app/reportes">Reportes</Link>
+        <Link className="rounded-lg bg-white/70 px-3 py-2" to="/app/usuarios">Usuarios</Link>
+        <Link className="rounded-lg bg-white/70 px-3 py-2" to="/app/sucursales">Sucursales</Link>
       </nav>
     </aside>
   );

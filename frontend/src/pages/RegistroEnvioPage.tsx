@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import SideNav from '../components/SideNav';
 import { createShipment } from '../services/shipmentService';
 import { fetchSucursales } from '../services/sucursalService';
 import type { CreateEnvioRequest, Sucursal } from '../types';
@@ -61,93 +60,102 @@ export default function RegistroEnvioPage() {
   };
 
   return (
-    <div className="app-shell">
-      <SideNav />
-      <main className="app-main">
-        <header className="app-header">
-          <div>
-            <h1>Registrar Nuevo Envío</h1>
-            <p className="muted">Ingresa los datos para generar el tracking y la guía logística.</p>
+    <div>
+      <header className="mb-8">
+        <h1 className="font-display text-3xl">Registrar Nuevo Envío</h1>
+        <p className="text-sm text-ink/60">Ingresa los datos para generar el tracking y la guía logística.</p>
+      </header>
+      
+      <div className="glass-card max-w-3xl p-6">
+        {error && (
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+            {error}
           </div>
-        </header>
+        )}
         
-        <div className="table-card" style={{ maxWidth: '800px' }}>
-          {error && <div className="alert" style={{ marginBottom: '16px' }}>{error}</div>}
+        <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
+          {/* Remitente */}
+          <div className="md:col-span-2">
+            <h3 className="text-xs uppercase tracking-[0.2em] text-ink/50">Datos del Remitente</h3>
+          </div>
+          <label className="field-label">
+            DNI Remitente
+            <input className="input" type="text" name="remitenteDni" required maxLength={8} value={formData.remitenteDni} onChange={handleChange} />
+          </label>
+          <label className="field-label">
+            Nombre Remitente
+            <input className="input" type="text" name="remitenteNombre" required value={formData.remitenteNombre} onChange={handleChange} />
+          </label>
+
+          {/* Destinatario */}
+          <div className="mt-4 md:col-span-2">
+            <h3 className="text-xs uppercase tracking-[0.2em] text-ink/50">Datos del Destinatario (Se Validará en RENIEC)</h3>
+          </div>
+          <label className="field-label">
+            DNI Destinatario
+            <input className="input" type="text" name="destinatarioDni" required maxLength={8} value={formData.destinatarioDni} onChange={handleChange} />
+          </label>
+          <label className="field-label">
+            Nombre Destinatario
+            <input className="input" type="text" name="destinatarioNombre" required value={formData.destinatarioNombre} onChange={handleChange} />
+          </label>
+
+          {/* Detalles de Envío */}
+          <div className="mt-4 md:col-span-2">
+            <h3 className="text-xs uppercase tracking-[0.2em] text-ink/50">Detalles del Paquete</h3>
+          </div>
+          <label className="field-label">
+            Sucursal Origen
+            <select className="select" name="sucursalOrigenId" required value={formData.sucursalOrigenId} onChange={handleChange}>
+              <option value="">Seleccionar...</option>
+              {sucursales.map((s) => (
+                <option key={s.id} value={s.id}>{s.nombre}</option>
+              ))}
+            </select>
+          </label>
+          <label className="field-label">
+            Sucursal Destino
+            <select className="select" name="sucursalDestinoId" required value={formData.sucursalDestinoId} onChange={handleChange}>
+              <option value="">Seleccionar...</option>
+              {sucursales.map((s) => (
+                <option key={s.id} value={s.id}>{s.nombre}</option>
+              ))}
+            </select>
+          </label>
           
-          <form onSubmit={handleSubmit} className="auth-form" style={{ gridTemplateColumns: '1fr 1fr' }}>
-            {/* Remitente */}
-            <div style={{ gridColumn: 'span 2' }}><h3 className="eyebrow">Datos del Remitente</h3></div>
-            <label>
-              DNI Remitente
-              <input type="text" name="remitenteDni" required maxLength={8} value={formData.remitenteDni} onChange={handleChange} />
-            </label>
-            <label>
-              Nombre Remitente
-              <input type="text" name="remitenteNombre" required value={formData.remitenteNombre} onChange={handleChange} />
-            </label>
+          <label className="field-label">
+            Peso (kg)
+            <input className="input" type="number" name="peso" step="0.1" required value={formData.peso} onChange={handleChange} />
+          </label>
+          <label className="field-label">
+            Dimensiones (ej: 30x20x10)
+            <input className="input" type="text" name="dimensiones" required value={formData.dimensiones} onChange={handleChange} />
+          </label>
 
-            {/* Destinatario */}
-            <div style={{ gridColumn: 'span 2', marginTop: '16px' }}><h3 className="eyebrow">Datos del Destinatario (Se Validará en RENIEC)</h3></div>
-            <label>
-              DNI Destinatario
-              <input type="text" name="destinatarioDni" required maxLength={8} value={formData.destinatarioDni} onChange={handleChange} />
-            </label>
-            <label>
-              Nombre Destinatario
-              <input type="text" name="destinatarioNombre" required value={formData.destinatarioNombre} onChange={handleChange} />
-            </label>
+          <label className="field-label">
+            Tipo de Servicio
+            <select className="select" name="tipoServicio" required value={formData.tipoServicio} onChange={handleChange}>
+              <option value="ESTANDAR">Estándar</option>
+              <option value="EXPRESS">Express</option>
+              <option value="FRAGIL">Frágil</option>
+            </select>
+          </label>
 
-            {/* Detalles de Envío */}
-            <div style={{ gridColumn: 'span 2', marginTop: '16px' }}><h3 className="eyebrow">Detalles del Paquete</h3></div>
-            <label>
-              Sucursal Origen
-              <select name="sucursalOrigenId" required value={formData.sucursalOrigenId} onChange={handleChange} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #e4ded5' }}>
-                <option value="">Seleccionar...</option>
-                {sucursales.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
-              </select>
-            </label>
-            <label>
-              Sucursal Destino
-              <select name="sucursalDestinoId" required value={formData.sucursalDestinoId} onChange={handleChange} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #e4ded5' }}>
-                <option value="">Seleccionar...</option>
-                {sucursales.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
-              </select>
-            </label>
-            
-            <label>
-              Peso (kg)
-              <input type="number" name="peso" step="0.1" required value={formData.peso} onChange={handleChange} />
-            </label>
-            <label>
-              Dimensiones (ej: 30x20x10)
-              <input type="text" name="dimensiones" required value={formData.dimensiones} onChange={handleChange} />
-            </label>
+          <label className="field-label md:col-span-2">
+            Descripción del contenido
+            <textarea className="textarea" name="descripcion" required rows={3} value={formData.descripcion} onChange={handleChange}></textarea>
+          </label>
 
-            <label>
-              Tipo de Servicio
-              <select name="tipoServicio" required value={formData.tipoServicio} onChange={handleChange} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #e4ded5' }}>
-                <option value="ESTANDAR">Estándar</option>
-                <option value="EXPRESS">Express</option>
-                <option value="FRAGIL">Frágil</option>
-              </select>
-            </label>
-
-            <label style={{ gridColumn: 'span 2' }}>
-              Descripción del contenido
-              <textarea name="descripcion" required rows={3} value={formData.descripcion} onChange={handleChange} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #e4ded5' }}></textarea>
-            </label>
-
-            <div style={{ gridColumn: 'span 2', display: 'flex', gap: '12px', marginTop: '16px' }}>
-              <button type="submit" className="primary" disabled={loading}>
-                {loading ? 'Registrando...' : 'Registrar Envío'}
-              </button>
-              <button type="button" className="ghost" onClick={() => navigate('/app/envios')} disabled={loading}>
-                Cancelar
-              </button>
-            </div>
-          </form>
-        </div>
-      </main>
+          <div className="mt-4 flex gap-3 md:col-span-2">
+            <button type="submit" className="btn" disabled={loading}>
+              {loading ? 'Registrando...' : 'Registrar Envío'}
+            </button>
+            <button type="button" className="btn-ghost" onClick={() => navigate('/app/envios')} disabled={loading}>
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

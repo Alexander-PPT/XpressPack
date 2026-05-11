@@ -27,35 +27,36 @@ export default function TrackingPage() {
   };
 
   return (
-    <div className="tracking-page">
+    <div>
       <TopNav />
-      <main className="hero">
-        <div className="hero-copy">
-          <p className="eyebrow">Tracking publico</p>
-          <h1>Tu envio, siempre visible</h1>
-          <p>
+      <main className="mx-auto grid w-full max-w-6xl gap-10 px-6 pb-20 pt-6 md:grid-cols-[1.2fr_0.8fr] md:px-10">
+        <div className="space-y-6">
+          <p className="text-xs uppercase tracking-[0.2em] text-ink/50">Tracking publico</p>
+          <h1 className="font-display text-4xl md:text-5xl">Tu envio, siempre visible</h1>
+          <p className="text-lg text-ink/70">
             Consulta el estado de tu paquete en tiempo real con un codigo unico.
           </p>
-          <form onSubmit={handleSearch} className="tracking-form">
+          <form onSubmit={handleSearch} className="flex flex-col gap-3 md:flex-row">
             <input
+              className="input flex-1"
               type="text"
               placeholder="Ingresa tu codigo de tracking"
               value={codigo}
               onChange={(e) => setCodigo(e.target.value)}
             />
-            <button type="submit" disabled={loading}>
+            <button className="btn" type="submit" disabled={loading}>
               {loading ? 'Buscando...' : 'Consultar'}
             </button>
           </form>
-          {error ? <p className="alert">{error}</p> : null}
+          {error ? <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
         </div>
-        <div className="hero-card">
+        <div>
           {shipment ? (
             <TrackingCard shipment={shipment} />
           ) : (
-            <div className="ghost-card">
-              <h3>Resultados en un vistazo</h3>
-              <p>Introduce un codigo para ver la linea de progreso.</p>
+            <div className="glass-card space-y-2 p-6">
+              <h3 className="font-display text-lg">Resultados en un vistazo</h3>
+              <p className="text-sm text-ink/60">Introduce un codigo para ver la linea de progreso.</p>
             </div>
           )}
         </div>

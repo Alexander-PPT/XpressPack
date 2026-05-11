@@ -3,12 +3,13 @@ import TrackingPage from './pages/TrackingPage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import ShipmentsPage from './pages/ShipmentsPage';
-import RegistroEnvioPage from './pages/RegistroEnvioPage';
-import DetalleEnvioPage from './pages/DetalleEnvioPage';
 import ReportsPage from './pages/ReportsPage';
 import UsersPage from './pages/UsersPage';
 import SucursalesPage from './pages/SucursalesPage';
+import DetalleEnvioPage from './pages/DetalleEnvioPage';
+import RegistroEnvioPage from './pages/RegistroEnvioPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import AppLayout from './layouts/AppLayout';
 
 function App() {
   return (
@@ -20,58 +21,18 @@ function App() {
         path="/app"
         element={
           <ProtectedRoute>
-            <DashboardPage />
+            <AppLayout />
           </ProtectedRoute>
         }
-      />
-      <Route
-        path="/app/envios"
-        element={
-          <ProtectedRoute>
-            <ShipmentsPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/app/envios/nuevo"
-        element={
-          <ProtectedRoute>
-            <RegistroEnvioPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/app/envios/:id"
-        element={
-          <ProtectedRoute>
-            <DetalleEnvioPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/app/reportes"
-        element={
-          <ProtectedRoute requiredRole="ADMIN">
-            <ReportsPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/app/usuarios"
-        element={
-          <ProtectedRoute requiredRole="ADMIN">
-            <UsersPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/app/sucursales"
-        element={
-          <ProtectedRoute requiredRole="ADMIN">
-            <SucursalesPage />
-          </ProtectedRoute>
-        }
-      />
+      >
+        <Route index element={<DashboardPage />} />
+        <Route path="envios" element={<ShipmentsPage />} />
+        <Route path="envios/nuevo" element={<RegistroEnvioPage />} />
+        <Route path="envios/:id" element={<DetalleEnvioPage />} />
+        <Route path="reportes" element={<ReportsPage />} />
+        <Route path="usuarios" element={<UsersPage />} />
+        <Route path="sucursales" element={<SucursalesPage />} />
+      </Route>
       <Route path="*" element={<Navigate to="/tracking" replace />} />
     </Routes>
   );

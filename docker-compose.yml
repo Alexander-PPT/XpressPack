@@ -1,13 +1,11 @@
-version: '3.8'
-
 services:
-  # PostgreSQL Database
+  # Postgres Database
   postgres:
-    image: postgres:15-alpine
+    image: postgres:16-alpine
     container_name: rutasync-postgres
     environment:
       POSTGRES_DB: ${DB_NAME:-rutasync_db}
-      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_USER: ${DB_USER:-admin}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-password123}
     ports:
       - "5432:5432"
@@ -16,10 +14,9 @@ services:
     networks:
       - rutasync-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-rutasync_db}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-admin}"]
+      timeout: 20s
+      retries: 10
 
   # Redis Cache
   redis:
@@ -33,12 +30,13 @@ services:
       - rutasync-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 5
 
   # Backend API
   backend:
+    image: rutasync-backend
+    platform: linux/amd64
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -52,8 +50,9 @@ services:
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: ${DB_NAME:-rutasync_db}
-      DB_USER: ${DB_USER:-postgres}
+      DB_USER: ${DB_USER:-admin}
       DB_PASSWORD: ${DB_PASSWORD:-password123}
+      DB_DIALECT: postgres
       JWT_SECRET: ${JWT_SECRET:-super_secret_key_min_32_chars}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-24h}
       REDIS_HOST: redis
@@ -77,26 +76,13 @@ services:
       - rutasync-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
-      interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 5
-
-  # pgAdmin (opcional, para administración PostgreSQL)
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: rutasync-pgadmin
-    ports:
-      - "8080:80"
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@rutasync.com
-      PGADMIN_DEFAULT_PASSWORD: password123
-    depends_on:
-      - postgres
-    networks:
-      - rutasync-network
 
   # Frontend (React + Vite)
   frontend:
+    image: rutasync-frontend
+    platform: linux/amd64
     build:
       context: ./frontend
       dockerfile: Dockerfile

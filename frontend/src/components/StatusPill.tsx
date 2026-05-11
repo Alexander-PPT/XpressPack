@@ -1,9 +1,9 @@
 import type { ShipmentStatus } from '../types';
 
 const STATUS_MAP: Record<ShipmentStatus, string> = {
-  'Recibido': 'status-pill status-recibido',
-  'En Viaje': 'status-pill status-viaje',
-  'Entregado': 'status-pill status-entregado'
+  'Recibido': 'bg-ocean/10 text-ocean',
+  'En Viaje': 'bg-amber/15 text-amber',
+  'Entregado': 'bg-moss/15 text-moss'
 };
 
 interface StatusPillProps {
@@ -11,5 +11,9 @@ interface StatusPillProps {
 }
 
 export default function StatusPill({ status }: StatusPillProps) {
-  return <span className={STATUS_MAP[status]}>{status}</span>;
+  return (
+    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS_MAP[status]}`}>
+      {status}
+    </span>
+  );
 }

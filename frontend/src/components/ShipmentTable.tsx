@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import type { Shipment } from '../types';
 import StatusPill from './StatusPill';
 
@@ -7,39 +6,31 @@ interface ShipmentTableProps {
 }
 
 export default function ShipmentTable({ shipments }: ShipmentTableProps) {
-  const navigate = useNavigate();
-
   return (
-    <div className="table-card">
-      <div className="table-header">
-        <h3>Envios recientes</h3>
-        <span>{shipments.length} registros</span>
+    <div className="glass-card p-6">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="font-display text-lg">Envios recientes</h3>
+        <span className="text-sm text-ink/60">{shipments.length} registros</span>
       </div>
-      <div className="table-scroll">
-        <table>
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-sm">
           <thead>
-            <tr>
-              <th>Guia</th>
-              <th>Tracking</th>
-              <th>Remitente</th>
-              <th>Destinatario</th>
-              <th>Estado</th>
+            <tr className="text-left text-xs uppercase tracking-[0.2em] text-ink/50">
+              <th className="pb-2">Guia</th>
+              <th className="pb-2">Tracking</th>
+              <th className="pb-2">Remitente</th>
+              <th className="pb-2">Destinatario</th>
+              <th className="pb-2">Estado</th>
             </tr>
           </thead>
           <tbody>
             {shipments.map((shipment) => (
-              <tr 
-                key={shipment.id} 
-                onClick={() => navigate(`/app/envios/${shipment.id}`)}
-                style={{ cursor: 'pointer', transition: 'background-color 0.2s' }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-soft)'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-              >
-                <td>{shipment.guia}</td>
-                <td>{shipment.codigoTracking}</td>
-                <td>{shipment.remitenteNombre}</td>
-                <td>{shipment.destinatarioNombre}</td>
-                <td><StatusPill status={shipment.estadoActual?.nombre || 'Recibido'} /></td>
+              <tr key={shipment.id} className="border-t border-clay/60">
+                <td className="py-3">{shipment.guia}</td>
+                <td className="py-3">{shipment.codigoTracking}</td>
+                <td className="py-3">{shipment.remitenteNombre}</td>
+                <td className="py-3">{shipment.destinatarioNombre}</td>
+                <td className="py-3"><StatusPill status={shipment.estado} /></td>
               </tr>
             ))}
           </tbody>

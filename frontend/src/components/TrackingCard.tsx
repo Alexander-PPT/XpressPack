@@ -12,53 +12,55 @@ const PROGRESS: Record<string, number> = {
 };
 
 const PROGRESS_CLASS: Record<string, string> = {
-  'Recibido': 'progress-recebido',
-  'En Viaje': 'progress-viaje',
-  'Entregado': 'progress-entregado'
+  'Recibido': 'bg-ocean',
+  'En Viaje': 'bg-amber',
+  'Entregado': 'bg-moss'
 };
 
 export default function TrackingCard({ shipment }: TrackingCardProps) {
-  const statusName = shipment.estadoActual?.nombre || shipment.estado || 'Recibido';
-  const progress = PROGRESS[statusName] ?? 0;
+  const progress = PROGRESS[shipment.estado] ?? 0;
 
   return (
-    <div className="tracking-card">
-      <div className="tracking-header">
+    <div className="glass-card space-y-6 p-6">
+      <div className="flex items-start justify-between">
         <div>
-          <p className="eyebrow">Codigo</p>
-          <h3>{shipment.codigoTracking}</h3>
+          <p className="text-xs uppercase tracking-[0.2em] text-ink/50">Codigo</p>
+          <h3 className="font-display text-2xl">{shipment.codigoTracking}</h3>
         </div>
-        <StatusPill status={statusName} />
+        <StatusPill status={shipment.estado} />
       </div>
-      <div className="tracking-progress">
-        <div className={`tracking-bar ${PROGRESS_CLASS[statusName] || ''}`}>
-          <span style={{ width: `${progress}%` }}></span>
+      <div>
+        <div className="h-2 rounded-full bg-pine/15">
+          <span
+            className={`block h-full rounded-full ${PROGRESS_CLASS[shipment.estado] || ''}`}
+            style={{ width: `${progress}%` }}
+          ></span>
         </div>
-        <p>{progress}% completado</p>
+        <p className="mt-2 text-sm text-ink/60">{progress}% completado</p>
       </div>
-      <div className="tracking-grid">
+      <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
         <div>
-          <p className="eyebrow">Remitente</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-ink/50">Remitente</p>
           <span>{shipment.remitenteNombre}</span>
         </div>
         <div>
-          <p className="eyebrow">Destinatario</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-ink/50">Destinatario</p>
           <span>{shipment.destinatarioNombre}</span>
         </div>
         <div>
-          <p className="eyebrow">Servicio</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-ink/50">Servicio</p>
           <span>{shipment.tipoServicio}</span>
         </div>
         <div>
-          <p className="eyebrow">Origen</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-ink/50">Origen</p>
           <span>{shipment.sucursalOrigenId || shipment.sucursalOrigen || '-'}</span>
         </div>
         <div>
-          <p className="eyebrow">Destino</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-ink/50">Destino</p>
           <span>{shipment.sucursalDestinoId || shipment.sucursalDestino || '-'}</span>
         </div>
         <div>
-          <p className="eyebrow">Ultimo estado</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-ink/50">Ultimo estado</p>
           <span>{shipment.fechaEntrega || shipment.createdAt || '-'}</span>
         </div>
       </div>

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import SideNav from '../components/SideNav';
 import StatusPill from '../components/StatusPill';
 import { fetchShipmentById, updateShipmentStatus } from '../services/shipmentService';
 import type { Shipment, ShipmentStatus } from '../types';
@@ -34,99 +33,110 @@ export default function DetalleEnvioPage() {
     }
   };
 
-  if (loading) return <div className="app-shell"><SideNav /><main className="app-main"><p>Cargando detalles...</p></main></div>;
-  if (error || !shipment) return <div className="app-shell"><SideNav /><main className="app-main"><p className="alert">{error || 'Envío no encontrado'}</p></main></div>;
+  if (loading) {
+    return (
+      <div>
+        <p>Cargando detalles...</p>
+      </div>
+    );
+  }
+
+  if (error || !shipment) {
+    return (
+      <div>
+        <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+          {error || 'Envío no encontrado'}
+        </p>
+      </div>
+    );
+  }
 
   const currentStatus = shipment.estadoActual?.nombre || 'Recibido';
 
   return (
-    <div className="app-shell">
-      <SideNav />
-      <main className="app-main">
-        <header className="app-header">
-          <div>
-            <button className="ghost" onClick={() => navigate(-1)} style={{ marginBottom: '12px' }}>&larr; Volver</button>
-            <h1>Detalle del Envío</h1>
-            <p className="muted">Guía: {shipment.guia} | Tracking: {shipment.codigoTracking}</p>
-          </div>
-          <div>
-            <StatusPill status={currentStatus} />
-          </div>
-        </header>
+    <div>
+      <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <button className="btn-ghost mb-3" onClick={() => navigate(-1)}>&larr; Volver</button>
+          <h1 className="font-display text-3xl">Detalle del Envío</h1>
+          <p className="text-sm text-ink/60">Guía: {shipment.guia} | Tracking: {shipment.codigoTracking}</p>
+        </div>
+        <div>
+          <StatusPill status={currentStatus} />
+        </div>
+      </header>
 
-        <div className="report-grid">
-          {/* Información del Envío */}
-          <div className="ghost-card">
-            <h3>Datos Generales</h3>
-            <ul style={{ listStyle: 'none', padding: 0, marginTop: '16px' }}>
-              <li><strong>Remitente:</strong> {shipment.remitenteNombre} (DNI: {shipment.remitenteDni})</li>
-              <li style={{ marginTop: '8px' }}><strong>Destinatario:</strong> {shipment.destinatarioNombre} (DNI: {shipment.destinatarioDni})</li>
-              <li style={{ marginTop: '8px' }}><strong>Servicio:</strong> {shipment.tipoServicio} ({shipment.peso} kg)</li>
-              <li style={{ marginTop: '8px' }}><strong>Descripción:</strong> {shipment.descripcion || 'N/A'}</li>
-            </ul>
-          </div>
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Información del Envío */}
+        <div className="glass-card p-6">
+          <h3 className="font-display text-lg">Datos Generales</h3>
+          <ul className="mt-4 space-y-2 text-sm text-ink/70">
+            <li><strong>Remitente:</strong> {shipment.remitenteNombre} (DNI: {shipment.remitenteDni})</li>
+            <li><strong>Destinatario:</strong> {shipment.destinatarioNombre} (DNI: {shipment.destinatarioDni})</li>
+            <li><strong>Servicio:</strong> {shipment.tipoServicio} ({shipment.peso} kg)</li>
+            <li><strong>Descripción:</strong> {shipment.descripcion || 'N/A'}</li>
+          </ul>
+        </div>
 
-          {/* Acciones Logísticas */}
-          <div className="ghost-card">
-            <h3>Actualizar Estado Logístico</h3>
-            <p className="muted" style={{ fontSize: '14px', margin: '12px 0' }}>El flujo logístico es unidireccional.</p>
-            
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              <button 
-                className="ghost" 
-                onClick={() => handleUpdateStatus('Recibido')} 
-                disabled={currentStatus === 'Recibido' || currentStatus === 'En Viaje' || currentStatus === 'Entregado'}
-              >
-                Marcar como Recibido
-              </button>
-              <button 
-                className="primary" 
-                onClick={() => handleUpdateStatus('En Viaje')} 
-                disabled={currentStatus === 'En Viaje' || currentStatus === 'Entregado'}
-              >
-                Avanzar a En Viaje
-              </button>
-              <button 
-                className="primary" 
-                onClick={() => handleUpdateStatus('Entregado')} 
-                disabled={currentStatus === 'Entregado' || currentStatus === 'Recibido'}
-                style={{ backgroundColor: currentStatus !== 'Entregado' ? '#27ae60' : undefined }}
-              >
-                Registrar Entrega Exitosamente
-              </button>
-            </div>
-          </div>
+        {/* Acciones Logísticas */}
+        <div className="glass-card p-6">
+          <h3 className="font-display text-lg">Actualizar Estado Logístico</h3>
+          <p className="mt-3 text-sm text-ink/60">El flujo logístico es unidireccional.</p>
           
-          {/* Historial */}
-          <div className="table-card" style={{ gridColumn: 'span 2' }}>
-            <h3>Historial de Cambios</h3>
-            {shipment.historial && shipment.historial.length > 0 ? (
-              <table style={{ marginTop: '16px', width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left' }}>
-                    <th style={{ padding: '8px' }}>Fecha y Hora</th>
-                    <th style={{ padding: '8px' }}>Estado</th>
-                    <th style={{ padding: '8px' }}>Registrado Por</th>
-                    <th style={{ padding: '8px' }}>Observación</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {shipment.historial.map((hist) => (
-                    <tr key={hist.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                      <td style={{ padding: '8px' }}>{new Date(hist.fechaHora).toLocaleString()}</td>
-                      <td style={{ padding: '8px' }}><StatusPill status={hist.estado.nombre} /></td>
-                      <td style={{ padding: '8px' }}>{hist.registradoPor.nombre}</td>
-                      <td style={{ padding: '8px' }}>{hist.observacion || '-'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p className="muted" style={{ marginTop: '16px' }}>No hay historial registrado aún.</p>
-            )}
+          <div className="mt-4 flex flex-wrap gap-3">
+            <button
+              className="btn-ghost"
+              onClick={() => handleUpdateStatus('Recibido')}
+              disabled={currentStatus === 'Recibido' || currentStatus === 'En Viaje' || currentStatus === 'Entregado'}
+            >
+              Marcar como Recibido
+            </button>
+            <button
+              className="btn"
+              onClick={() => handleUpdateStatus('En Viaje')}
+              disabled={currentStatus === 'En Viaje' || currentStatus === 'Entregado'}
+            >
+              Avanzar a En Viaje
+            </button>
+            <button
+              className="btn btn-success"
+              onClick={() => handleUpdateStatus('Entregado')}
+              disabled={currentStatus === 'Entregado' || currentStatus === 'Recibido'}
+            >
+              Registrar Entrega Exitosamente
+            </button>
           </div>
         </div>
-      </main>
+        
+        {/* Historial */}
+        <div className="glass-card p-6 md:col-span-2">
+          <h3 className="font-display text-lg">Historial de Cambios</h3>
+          {shipment.historial && shipment.historial.length > 0 ? (
+            <table className="mt-4 w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-clay/60 text-left text-xs uppercase tracking-[0.2em] text-ink/50">
+                  <th className="pb-2">Fecha y Hora</th>
+                  <th className="pb-2">Estado</th>
+                  <th className="pb-2">Registrado Por</th>
+                  <th className="pb-2">Observación</th>
+                </tr>
+              </thead>
+              <tbody>
+                {shipment.historial.map((hist) => (
+                  <tr key={hist.id} className="border-b border-clay/40">
+                    <td className="py-3">{new Date(hist.fechaHora).toLocaleString()}</td>
+                    <td className="py-3"><StatusPill status={hist.estado.nombre} /></td>
+                    <td className="py-3">{hist.registradoPor.nombre}</td>
+                    <td className="py-3">{hist.observacion || '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p className="mt-4 text-sm text-ink/60">No hay historial registrado aún.</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
