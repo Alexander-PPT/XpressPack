@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import SideNav from '../components/SideNav';
 import ShipmentTable from '../components/ShipmentTable';
 import { fetchShipments } from '../services/shipmentService';
@@ -20,7 +21,9 @@ export default function ShipmentsPage() {
             <h1>Envios</h1>
             <p className="muted">Lista completa y estados actuales</p>
           </div>
-          <button className="primary">Registrar envio</button>
+          <Link to="/app/envios/nuevo">
+            <button className="primary">Registrar envio</button>
+          </Link>
         </header>
         <ShipmentTable shipments={shipments} />
       </main>

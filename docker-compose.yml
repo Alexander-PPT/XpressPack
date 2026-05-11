@@ -1,25 +1,25 @@
 version: '3.8'
 
 services:
-  # MySQL Database
-  mysql:
-    image: mysql:8.0
-    container_name: rutasync-mysql
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: rutasync-postgres
     environment:
-      MYSQL_DATABASE: ${DB_NAME:-rutasync_db}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-password123}
-      MYSQL_USER: ${DB_USER:-admin}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-password123}
+      POSTGRES_DB: ${DB_NAME:-rutasync_db}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password123}
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - rutasync-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-rutasync_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Redis Cache
   redis:
@@ -33,7 +33,8 @@ services:
       - rutasync-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      timeout: 10s
+      interval: 10s
+      timeout: 5s
       retries: 5
 
   # Backend API
@@ -48,10 +49,10 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
       APP_PORT: 3001
       APP_HOST: 0.0.0.0
-      DB_HOST: mysql
-      DB_PORT: 3306
+      DB_HOST: postgres
+      DB_PORT: 5432
       DB_NAME: ${DB_NAME:-rutasync_db}
-      DB_USER: ${DB_USER:-admin}
+      DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-password123}
       JWT_SECRET: ${JWT_SECRET:-super_secret_key_min_32_chars}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-24h}
@@ -65,7 +66,7 @@ services:
       RENIEC_API_URL: ${RENIEC_API_URL:-https://api.reniec.gob.pe}
       RENIEC_API_KEY: ${RENIEC_API_KEY:-}
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -76,21 +77,21 @@ services:
       - rutasync-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
-      timeout: 10s
+      interval: 10s
+      timeout: 5s
       retries: 5
 
-  # phpMyAdmin (opcional, para administración MySQL)
-  phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: rutasync-phpmyadmin
+  # pgAdmin (opcional, para administración PostgreSQL)
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: rutasync-pgadmin
     ports:
       - "8080:80"
     environment:
-      PMA_HOST: mysql
-      PMA_USER: ${DB_USER:-admin}
-      PMA_PASSWORD: ${DB_PASSWORD:-password123}
+      PGADMIN_DEFAULT_EMAIL: admin@rutasync.com
+      PGADMIN_DEFAULT_PASSWORD: password123
     depends_on:
-      - mysql
+      - postgres
     networks:
       - rutasync-network
 
@@ -117,5 +118,5 @@ networks:
     driver: bridge
 
 volumes:
-  mysql_data:
+  postgres_data:
   redis_data:

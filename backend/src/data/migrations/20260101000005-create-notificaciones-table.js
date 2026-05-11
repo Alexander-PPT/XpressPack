@@ -42,7 +42,7 @@ module.exports = {
         }
       },
       estado: {
-        type: Sequelize.ENUM('PENDIENTE', 'ENVIADO', 'FALLIDO'),
+        type: Sequelize.STRING,
         defaultValue: 'PENDIENTE'
       },
       mensajeError: {
@@ -60,12 +60,12 @@ module.exports = {
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.fn('NOW')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
       updatedAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.fn('NOW')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
     });
 

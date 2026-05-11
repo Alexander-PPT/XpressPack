@@ -23,7 +23,7 @@ module.exports = {
         allowNull: false
       },
       rol: {
-        type: Sequelize.ENUM('ADMIN', 'OPERARIO'),
+        type: Sequelize.STRING,
         defaultValue: 'OPERARIO'
       },
       sucursalId: {
@@ -45,12 +45,12 @@ module.exports = {
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.fn('NOW')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
       updatedAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.fn('NOW')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
     });
 

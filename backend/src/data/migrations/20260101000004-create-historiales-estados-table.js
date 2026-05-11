@@ -18,11 +18,11 @@ module.exports = {
         }
       },
       estadoAnterior: {
-        type: Sequelize.ENUM('Recibido', 'En Viaje', 'Entregado'),
+        type: Sequelize.STRING,
         allowNull: true
       },
       estadoNuevo: {
-        type: Sequelize.ENUM('Recibido', 'En Viaje', 'Entregado'),
+        type: Sequelize.STRING,
         allowNull: false
       },
       razon: {
@@ -48,7 +48,7 @@ module.exports = {
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.fn('NOW')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
     });
 

@@ -3,6 +3,8 @@ import TrackingPage from './pages/TrackingPage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import ShipmentsPage from './pages/ShipmentsPage';
+import RegistroEnvioPage from './pages/RegistroEnvioPage';
+import DetalleEnvioPage from './pages/DetalleEnvioPage';
 import ReportsPage from './pages/ReportsPage';
 import UsersPage from './pages/UsersPage';
 import SucursalesPage from './pages/SucursalesPage';
@@ -31,9 +33,25 @@ function App() {
         }
       />
       <Route
-        path="/app/reportes"
+        path="/app/envios/nuevo"
         element={
           <ProtectedRoute>
+            <RegistroEnvioPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/envios/:id"
+        element={
+          <ProtectedRoute>
+            <DetalleEnvioPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/reportes"
+        element={
+          <ProtectedRoute requiredRole="ADMIN">
             <ReportsPage />
           </ProtectedRoute>
         }
@@ -41,7 +59,7 @@ function App() {
       <Route
         path="/app/usuarios"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredRole="ADMIN">
             <UsersPage />
           </ProtectedRoute>
         }
@@ -49,7 +67,7 @@ function App() {
       <Route
         path="/app/sucursales"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredRole="ADMIN">
             <SucursalesPage />
           </ProtectedRoute>
         }

@@ -18,7 +18,8 @@ const PROGRESS_CLASS: Record<string, string> = {
 };
 
 export default function TrackingCard({ shipment }: TrackingCardProps) {
-  const progress = PROGRESS[shipment.estado] ?? 0;
+  const statusName = shipment.estadoActual?.nombre || shipment.estado || 'Recibido';
+  const progress = PROGRESS[statusName] ?? 0;
 
   return (
     <div className="tracking-card">
@@ -27,10 +28,10 @@ export default function TrackingCard({ shipment }: TrackingCardProps) {
           <p className="eyebrow">Codigo</p>
           <h3>{shipment.codigoTracking}</h3>
         </div>
-        <StatusPill status={shipment.estado} />
+        <StatusPill status={statusName} />
       </div>
       <div className="tracking-progress">
-        <div className={`tracking-bar ${PROGRESS_CLASS[shipment.estado] || ''}`}>
+        <div className={`tracking-bar ${PROGRESS_CLASS[statusName] || ''}`}>
           <span style={{ width: `${progress}%` }}></span>
         </div>
         <p>{progress}% completado</p>
