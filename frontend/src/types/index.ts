@@ -29,11 +29,14 @@ export interface Shipment {
   guia: string;
   codigoTracking: string;
   estado: ShipmentStatus;
+  remitenteDni?: string;
+  destinatarioDni?: string;
   remitenteNombre: string;
   destinatarioNombre: string;
   remitenteEmail?: string;
   destinatarioEmail?: string;
   tipoServicio: string;
+  peso?: number;
   descripcion?: string | null;
   sucursalOrigen?: string | null;
   sucursalDestino?: string | null;
@@ -42,6 +45,27 @@ export interface Shipment {
   fechaUltimoEstado?: string;
   sucursalOrigenId?: string;
   sucursalDestinoId?: string;
+  estadoActual?: { nombre: ShipmentStatus };
+  historial?: Array<{
+    id: string;
+    fechaHora: string;
+    estado: { nombre: ShipmentStatus };
+    registradoPor: { nombre: string };
+    observacion?: string | null;
+  }>;
+}
+
+export interface CreateEnvioRequest {
+  remitenteDni: string;
+  remitenteNombre: string;
+  destinatarioDni: string;
+  destinatarioNombre: string;
+  sucursalOrigenId: string;
+  sucursalDestinoId: string;
+  peso: number;
+  dimensiones: string;
+  tipoServicio: string;
+  descripcion: string;
 }
 
 export interface Notification {

@@ -1,5 +1,5 @@
 import api from './api';
-import type { Shipment } from '../types';
+import type { CreateEnvioRequest, Shipment, ShipmentStatus } from '../types';
 
 export const fetchShipments = async () => {
   const { data } = await api.get('/shipments');
@@ -14,4 +14,14 @@ export const fetchShipmentStats = async () => {
 export const fetchShipmentById = async (id: string) => {
   const { data } = await api.get(`/shipments/${id}`);
   return data.data as { shipment: Shipment };
+};
+
+export const createShipment = async (payload: CreateEnvioRequest) => {
+  const { data } = await api.post('/shipments', payload);
+  return data.data;
+};
+
+export const updateShipmentStatus = async (id: string, estado: ShipmentStatus) => {
+  const { data } = await api.patch(`/shipments/${id}/estado`, { estadoNuevo: estado });
+  return data.data;
 };
