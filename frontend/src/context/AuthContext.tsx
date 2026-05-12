@@ -11,13 +11,26 @@ interface AuthState {
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
 
+const normalizeRole = (value: unknown): User['rol'] => {
+  const normalized = String(value ?? '').trim().toUpperCase();
+  return normalized === 'ADMIN' ? 'ADMIN' : 'OPERARIO';
+};
+
+const normalizePersistedUser = (raw: User | null): User | null => {
+  if (!raw) return null;
+  return {
+    ...raw,
+    rol: normalizeRole((raw as unknown as { rol?: string; role?: string }).rol ?? (raw as unknown as { role?: string }).role),
+  };
+};
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUserState] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const persisted = getUser<User>();
-    setUserState(persisted);
+    setUserState(normalizePersistedUser(persisted));
     setLoading(false);
   }, []);
 
