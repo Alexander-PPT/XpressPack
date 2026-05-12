@@ -9,6 +9,7 @@ import SucursalesPage from './pages/SucursalesPage';
 import DetalleEnvioPage from './pages/DetalleEnvioPage';
 import RegistroEnvioPage from './pages/RegistroEnvioPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import PublicRoute from './components/PublicRoute';
 import AppLayout from './layouts/AppLayout';
 
 function App() {
@@ -16,7 +17,14 @@ function App() {
     <Routes>
       <Route path="/" element={<Navigate to="/tracking" replace />} />
       <Route path="/tracking" element={<TrackingPage />} />
-      <Route path="/login" element={<LoginPage />} />
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <LoginPage />
+          </PublicRoute>
+        }
+      />
       <Route
         path="/app"
         element={

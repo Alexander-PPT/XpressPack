@@ -14,6 +14,7 @@
     margin: 0;
     min-height: 100vh;
     background: radial-gradient(circle at top, #fdfbf8 0%, #f4efe7 45%, #eee7dc 100%);
+    color-scheme: light;
   }
 
   a {
@@ -21,13 +22,34 @@
     text-decoration: none;
   }
 
+  button {
+    @apply transition-all duration-200;
+  }
+
+  input, select, textarea {
+    @apply transition-all duration-200;
+  }
 }
 
 @layer components {
+  /* Cards & Containers */
   .glass-card {
     @apply rounded-xl bg-white/80 shadow-soft backdrop-blur;
   }
 
+  .glass-card-lg {
+    @apply rounded-2xl bg-white/85 shadow-lg backdrop-blur;
+  }
+
+  .card {
+    @apply rounded-xl bg-white shadow-soft border border-clay/30;
+  }
+
+  .card-hover {
+    @apply transition hover:shadow-md hover:-translate-y-0.5;
+  }
+
+  /* Auth Layout */
   .auth-shell {
     @apply relative overflow-hidden;
     background: linear-gradient(135deg, #f5efe6 0%, #ece2d3 100%);
@@ -49,32 +71,61 @@
     @apply rounded-2xl border border-clay/60 bg-white/90 p-7 shadow-soft md:p-10;
   }
 
+  /* Buttons */
   .btn {
-    @apply rounded-lg bg-pine px-5 py-3 text-sm font-semibold text-white shadow-soft transition;
+    @apply rounded-lg bg-pine px-5 py-3 text-sm font-semibold text-white shadow-soft transition inline-flex items-center justify-center gap-2;
   }
 
-  .btn:hover {
-    @apply -translate-y-0.5 bg-pineDark;
+  .btn:hover:not(:disabled) {
+    @apply -translate-y-0.5 bg-pineDark shadow-md;
+  }
+
+  .btn:active:not(:disabled) {
+    @apply translate-y-0;
   }
 
   .btn:disabled {
     @apply cursor-not-allowed opacity-60;
   }
 
+  .btn-secondary {
+    @apply rounded-lg bg-clay/40 px-5 py-3 text-sm font-semibold text-ink shadow-sm transition;
+  }
+
+  .btn-secondary:hover {
+    @apply -translate-y-0.5 bg-clay/60 shadow-md;
+  }
+
   .btn-ghost {
-    @apply rounded-lg border border-clay px-5 py-3 text-sm font-semibold text-pine transition;
+    @apply rounded-lg border border-clay px-5 py-3 text-sm font-semibold text-pine transition inline-flex items-center justify-center gap-2;
   }
 
   .btn-ghost:hover {
-    @apply -translate-y-0.5 bg-white;
+    @apply -translate-y-0.5 bg-white shadow-md;
+  }
+
+  .btn-ghost-dark {
+    @apply rounded-lg border border-clay px-5 py-3 text-sm font-semibold text-ink transition;
+  }
+
+  .btn-ghost-dark:hover {
+    @apply -translate-y-0.5 bg-white shadow-md;
+  }
+
+  .btn-sm {
+    @apply rounded-md px-3 py-2 text-xs font-semibold;
+  }
+
+  .btn-icon {
+    @apply rounded-lg w-10 h-10 flex items-center justify-center transition hover:bg-clay/40;
   }
 
   .btn-success {
-    @apply bg-moss;
+    @apply bg-success hover:bg-mossDark;
   }
 
-  .btn-success:hover {
-    @apply bg-moss/90;
+  .btn-danger {
+    @apply bg-error hover:bg-red-600;
   }
 
   .btn-card {
@@ -82,15 +133,29 @@
   }
 
   .btn-card:hover {
-    @apply -translate-y-0.5;
+    @apply -translate-y-0.5 shadow-md;
   }
 
+  /* Forms */
   .field-label {
     @apply grid gap-2 text-sm font-semibold text-ink/70;
   }
 
+  .field-label.required::after {
+    content: ' *';
+    @apply text-error;
+  }
+
   .input {
     @apply rounded-lg border border-clay bg-white px-4 py-3 text-sm text-ink shadow-sm focus:border-pine focus:outline-none focus:ring-2 focus:ring-pine/20;
+  }
+
+  .input::placeholder {
+    @apply text-ink/40;
+  }
+
+  .input:disabled {
+    @apply bg-clay/20 cursor-not-allowed;
   }
 
   .select {
@@ -98,6 +163,146 @@
   }
 
   .textarea {
-    @apply rounded-lg border border-clay bg-white px-4 py-3 text-sm text-ink shadow-sm focus:border-pine focus:outline-none focus:ring-2 focus:ring-pine/20;
+    @apply rounded-lg border border-clay bg-white px-4 py-3 text-sm text-ink shadow-sm focus:border-pine focus:outline-none focus:ring-2 focus:ring-pine/20 resize-vertical;
+  }
+
+  .form-group {
+    @apply space-y-2;
+  }
+
+  .form-row {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+  }
+
+  /* Status & States */
+  .status-badge {
+    @apply inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold;
+  }
+
+  .status-received {
+    @apply bg-blue-100 text-blue-700;
+  }
+
+  .status-transit {
+    @apply bg-amber-100 text-amber-700;
+  }
+
+  .status-delivered {
+    @apply bg-success/20 text-mossDark;
+  }
+
+  .status-cancelled {
+    @apply bg-red-100 text-red-700;
+  }
+
+  /* Alerts */
+  .alert {
+    @apply rounded-lg border px-4 py-3 text-sm;
+  }
+
+  .alert-success {
+    @apply border-success/30 bg-successLight text-mossDark;
+  }
+
+  .alert-error {
+    @apply border-error/30 bg-errorLight text-error;
+  }
+
+  .alert-warning {
+    @apply border-warning/30 bg-warningLight text-amber-800;
+  }
+
+  .alert-info {
+    @apply border-ocean/30 bg-blue-50 text-oceanDark;
+  }
+
+  /* Tables */
+  .table-container {
+    @apply overflow-x-auto rounded-lg border border-clay/30;
+  }
+
+  .table {
+    @apply w-full;
+  }
+
+  .table th {
+    @apply bg-clay/20 px-6 py-3 text-left text-xs font-semibold text-ink/70 uppercase tracking-wider;
+  }
+
+  .table td {
+    @apply px-6 py-4 border-t border-clay/20;
+  }
+
+  .table tbody tr {
+    @apply transition hover:bg-sand/50;
+  }
+
+  /* Navigation */
+  .nav-link {
+    @apply rounded-lg px-4 py-2.5 text-sm font-semibold transition flex items-center gap-3;
+  }
+
+  .nav-link:hover {
+    @apply bg-white/50;
+  }
+
+  .nav-link.active {
+    @apply bg-white text-pine font-bold shadow-sm;
+  }
+
+  /* Badges & Pills */
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full bg-clay/30 px-2.5 py-1 text-xs font-semibold text-ink;
+  }
+
+  .badge-primary {
+    @apply bg-pine/10 text-pine;
+  }
+
+  .badge-success {
+    @apply bg-success/10 text-mossDark;
+  }
+
+  .badge-error {
+    @apply bg-error/10 text-error;
+  }
+
+  /* Utilities */
+  .text-gradient {
+    @apply bg-gradient-to-r from-pine to-pineLight bg-clip-text text-transparent;
+  }
+
+  .divider {
+    @apply border-t border-clay/30;
+  }
+
+  .section-divider {
+    @apply my-8 border-t border-clay/20;
+  }
+
+  .fade-in {
+    @apply animate-fadeIn;
+  }
+
+  .slide-in {
+    @apply animate-slideIn;
+  }
+
+  /* Loading States */
+  .skeleton {
+    @apply animate-pulse bg-clay/20 rounded;
+  }
+
+  .spinner {
+    @apply inline-block h-4 w-4 animate-spin rounded-full border-2 border-clay border-t-pine;
+  }
+
+  /* Responsive Utilities */
+  .container-wide {
+    @apply max-w-7xl mx-auto px-4 md:px-8 lg:px-12;
+  }
+
+  .container-base {
+    @apply max-w-6xl mx-auto px-4 md:px-8;
   }
 }

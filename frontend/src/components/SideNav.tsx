@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../services/authService';
 import { clearSession } from '../services/storageService';
+import { LayoutDashboard, Package, BarChart3, Users, MapPin, LogOut } from 'lucide-react';
 
 export default function SideNav() {
   const navigate = useNavigate();
@@ -11,21 +12,47 @@ export default function SideNav() {
       await logout();
     } finally {
       clearSession();
-      navigate('/login');
+      navigate('/login', { replace: true });
     }
   };
 
+  const navItems = [
+    { icon: <LayoutDashboard className="h-5 w-5" />, label: 'Dashboard', href: '/app' },
+    { icon: <Package className="h-5 w-5" />, label: 'Envíos', href: '/app/envios' },
+    { icon: <BarChart3 className="h-5 w-5" />, label: 'Reportes', href: '/app/reportes' },
+    { icon: <Users className="h-5 w-5" />, label: 'Usuarios', href: '/app/usuarios' },
+    { icon: <MapPin className="h-5 w-5" />, label: 'Sucursales', href: '/app/sucursales' },
+  ];
+
   return (
-    <aside className="bg-clay px-6 py-10">
-      <div className="font-display text-lg">Panel</div>
-      <nav className="mt-6 grid gap-3 text-sm font-semibold text-ink/70">
-        <Link className="rounded-lg bg-white/70 px-3 py-2" to="/app">Dashboard</Link>
-        <Link className="rounded-lg bg-white/70 px-3 py-2" to="/app/envios">Envios</Link>
-        <Link className="rounded-lg bg-white/70 px-3 py-2" to="/app/reportes">Reportes</Link>
-        <Link className="rounded-lg bg-white/70 px-3 py-2" to="/app/usuarios">Usuarios</Link>
-        <Link className="rounded-lg bg-white/70 px-3 py-2" to="/app/sucursales">Sucursales</Link>
-        <button className="btn-ghost mt-4 text-left" onClick={handleLogout}>Cerrar sesion</button>
+    <aside className="bg-gradient-to-b from-clay/40 to-clay/20 px-4 py-8 md:px-6 md:py-10 flex flex-col h-full">
+      <div className="mb-8">
+        <h1 className="font-display text-2xl font-bold text-gradient">XpressPack</h1>
+        <p className="text-xs text-ink/50 mt-1">Admin Panel</p>
+      </div>
+
+      <nav className="flex-1 grid gap-2">
+        {navItems.map((item) => (
+          <Link
+            key={item.href}
+            to={item.href}
+            className="nav-link group"
+          >
+            <span className="text-ink/70 group-hover:text-pine transition">{item.icon}</span>
+            <span>{item.label}</span>
+          </Link>
+        ))}
       </nav>
+
+      <div className="border-t border-clay/40 pt-4">
+        <button
+          onClick={handleLogout}
+          className="nav-link w-full text-left text-error hover:bg-error/5 justify-start"
+        >
+          <LogOut className="h-5 w-5" />
+          <span>Cerrar sesión</span>
+        </button>
+      </div>
     </aside>
   );
 }
