@@ -4,6 +4,7 @@ import { Users, Mail, Lock, Shield, Plus, User as UserIcon, Eye, EyeOff } from '
 import type { User } from '../types';
 import Button from '../components/Button';
 import Badge from '../components/Badge';
+import Toast from '../components/Toast';
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -11,6 +12,7 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [toast, setToast] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
   const [form, setForm] = useState({
     nombre: '',
     email: '',
@@ -39,6 +41,12 @@ export default function UsersPage() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!toast) return;
+    const timeout = window.setTimeout(() => setToast(null), 3500);
+    return () => window.clearTimeout(timeout);
+  }, [toast]);
+
   const formatDate = (value?: string) => {
     if (!value) return 'Sin fecha';
     const parsed = new Date(value);
@@ -54,8 +62,17 @@ export default function UsersPage() {
       setForm({ nombre: '', email: '', password: '', rol: 'OPERARIO' });
       setShowPassword(false);
       setShowForm(false);
-    } catch (error) {
+      setToast({ type: 'success', message: `Usuario ${created.nombre} creado correctamente.` });
+    } catch (error: unknown) {
       console.error('Error creating user:', error);
+      const msg = error instanceof Error ? error.message.toLowerCase() : '';
+      if (msg.includes('401') || msg.includes('permission') || msg.includes('unauthorized') || msg.includes('42501')) {
+        setToast({ type: 'error', message: 'No tienes permisos para crear usuarios. Inicia sesion con un admin valido.' });
+      } else if (msg.includes('duplicate') || msg.includes('unique') || msg.includes('already')) {
+        setToast({ type: 'error', message: 'Ese email ya esta registrado.' });
+      } else {
+        setToast({ type: 'error', message: 'No se pudo crear el usuario. Intenta nuevamente.' });
+      }
     } finally {
       setCreating(false);
     }
@@ -63,6 +80,12 @@ export default function UsersPage() {
 
   return (
     <div className="space-y-8">
+      {toast && (
+        <div className="fixed top-5 right-5 z-50 w-[min(92vw,420px)] pointer-events-none">
+          <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
         <div>
