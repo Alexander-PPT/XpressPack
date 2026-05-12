@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Package, Mail, Github } from 'lucide-react';
-import Button from './Button';
+import { Package, Mail, ExternalLink } from 'lucide-react';
 
 export default function TopNav() {
   return (
@@ -28,13 +27,13 @@ export default function TopNav() {
             Panel
           </Link>
           <a
-            href="https://github.com"
+            href="https://github.com/Alexander-PPT/XpressPack"
             target="_blank"
             rel="noopener noreferrer"
             className="text-ink/70 hover:text-pine transition"
             title="GitHub"
           >
-            <Github className="h-5 w-5" />
+            <ExternalLink className="h-5 w-5" />
           </a>
         </nav>
 

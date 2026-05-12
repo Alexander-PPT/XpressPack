@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { X, AlertCircle, CheckCircle, Info } from 'lucide-react';
 
 interface AlertProps {

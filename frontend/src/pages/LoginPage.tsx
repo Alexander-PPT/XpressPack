@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/authService';
-import { Package, Mail, Lock, AlertCircle } from 'lucide-react';
+import { Package, Mail, Lock } from 'lucide-react';
 import Button from '../components/Button';
 import Alert from '../components/Alert';
 

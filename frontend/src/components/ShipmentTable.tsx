@@ -5,13 +5,13 @@ import StatusPill from './StatusPill';
 
 interface ShipmentTableProps {
   shipments: Shipment[];
-  onRowClick?: (id: number) => void;
+  onRowClick?: (id: string) => void;
 }
 
 export default function ShipmentTable({ shipments, onRowClick }: ShipmentTableProps) {
   const navigate = useNavigate();
 
-  const handleRowClick = (id: number) => {
+  const handleRowClick = (id: string) => {
     if (onRowClick) {
       onRowClick(id);
     } else {
@@ -83,7 +83,7 @@ export default function ShipmentTable({ shipments, onRowClick }: ShipmentTablePr
                 <td>
                   <div className="flex items-center gap-1 text-sm text-ink/60">
                     <Calendar className="h-4 w-4" />
-                    {new Date(shipment.fechaCreacion).toLocaleDateString('es-PE')}
+                    {new Date(shipment.createdAt || Date.now()).toLocaleDateString('es-PE')}
                   </div>
                 </td>
                 <td className="text-right">

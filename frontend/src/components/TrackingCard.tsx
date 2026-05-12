@@ -115,7 +115,7 @@ export default function TrackingCard({ shipment }: TrackingCardProps) {
                       month: 'long',
                       day: 'numeric',
                     })
-                  : new Date(shipment.createdAt).toLocaleDateString('es-PE', {
+                  : new Date(shipment.createdAt || Date.now()).toLocaleDateString('es-PE', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',

@@ -9,6 +9,7 @@ export interface User {
   rol: Role;
   sucursalId?: string | null;
   estado?: boolean;
+  createdAt?: string;
 }
 
 export interface Sucursal {
@@ -37,6 +38,8 @@ export interface Shipment {
   destinatarioEmail?: string;
   tipoServicio: string;
   peso?: number;
+  dimensiones?: string;
+  valorDeclarado?: number;
   descripcion?: string | null;
   sucursalOrigen?: string | null;
   sucursalDestino?: string | null;
@@ -66,6 +69,7 @@ export interface CreateEnvioRequest {
   dimensiones: string;
   tipoServicio: string;
   descripcion: string;
+  valorDeclarado?: number;
 }
 
 export interface Notification {

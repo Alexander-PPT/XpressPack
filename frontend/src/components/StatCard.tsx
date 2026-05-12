@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Package, Truck, CheckCircle, TrendingUp } from 'lucide-react';
 
 interface StatCardProps {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Mail, Package, MapPin, FileText, ChevronLeft } from 'lucide-react';
+import { User, Package, MapPin, FileText, ChevronLeft } from 'lucide-react';
 import { createShipment } from '../services/shipmentService';
 import { fetchSucursales } from '../services/sucursalService';
 import type { CreateEnvioRequest, Sucursal } from '../types';

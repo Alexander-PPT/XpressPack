@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createSucursal, fetchSucursales } from '../services/sucursalService';
-import { MapPin, Building2, Plus, Code, Home, MapIcon, DollarSign } from 'lucide-react';
+import { MapPin, Building2, Plus, Code, Home, MapIcon } from 'lucide-react';
 import type { Sucursal } from '../types';
 import Button from '../components/Button';
 

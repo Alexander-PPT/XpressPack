@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createUser, fetchUsers } from '../services/userService';
-import { Users, Mail, Lock, Shield, Plus, User } from 'lucide-react';
+import { Users, Mail, Lock, Shield, Plus, User as UserIcon } from 'lucide-react';
 import type { User } from '../types';
 import Button from '../components/Button';
 import Badge from '../components/Badge';
@@ -75,7 +75,7 @@ export default function UsersPage() {
               <div className="form-group">
                 <label className="field-label required">Nombre completo</label>
                 <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-ink/40 pointer-events-none" />
+                  <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-ink/40 pointer-events-none" />
                   <input
                     className="input pl-12"
                     placeholder="Juan Pérez"
@@ -194,7 +194,7 @@ export default function UsersPage() {
                     <td>
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-pine/10 flex items-center justify-center">
-                          <User className="h-5 w-5 text-pine" />
+                          <UserIcon className="h-5 w-5 text-pine" />
                         </div>
                         <span className="font-semibold">{user.nombre}</span>
                       </div>
@@ -218,10 +218,6 @@ export default function UsersPage() {
             </table>
           </div>
         )}
-      </div>
-    </div>
-  );
-}
       </div>
     </div>
   );

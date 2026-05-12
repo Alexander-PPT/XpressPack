@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Package, User, Truck, History } from 'lucide-react';
+import { ChevronLeft, User, Truck, History } from 'lucide-react';
 import StatusPill from '../components/StatusPill';
 import Button from '../components/Button';
 import Alert from '../components/Alert';
@@ -234,7 +234,7 @@ export default function DetalleEnvioPage() {
                 <div>
                   <p className="font-semibold">Creado</p>
                   <p className="text-xs text-ink/60">
-                    {new Date(shipment.createdAt).toLocaleDateString('es-PE')}
+                    {new Date(shipment.createdAt || Date.now()).toLocaleDateString('es-PE')}
                   </p>
                 </div>
               </div>
