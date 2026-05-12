@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createUser, fetchUsers } from '../services/userService';
-import { Users, Mail, Lock, Shield, Plus, User as UserIcon } from 'lucide-react';
+import { Users, Mail, Lock, Shield, Plus, User as UserIcon, Eye, EyeOff } from 'lucide-react';
 import type { User } from '../types';
 import Button from '../components/Button';
 import Badge from '../components/Badge';
@@ -10,6 +10,7 @@ export default function UsersPage() {
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
     nombre: '',
     email: '',
@@ -51,6 +52,7 @@ export default function UsersPage() {
       const created = await createUser(form);
       setUsers((prev) => [created, ...prev]);
       setForm({ nombre: '', email: '', password: '', rol: 'OPERARIO' });
+      setShowPassword(false);
       setShowForm(false);
     } catch (error) {
       console.error('Error creating user:', error);
@@ -120,14 +122,23 @@ export default function UsersPage() {
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-ink/40 pointer-events-none" />
                   <input
-                    className="input pl-12"
-                    type="password"
-                    placeholder="••••••••"
+                    className="input pl-12 pr-12"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="********"
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
                     required
                     disabled={creating}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-ink/50 hover:text-ink transition"
+                    aria-label={showPassword ? 'Ocultar contrasena' : 'Mostrar contrasena'}
+                    disabled={creating}
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
                 </div>
               </div>
               <div className="form-group">
@@ -233,3 +244,4 @@ export default function UsersPage() {
     </div>
   );
 }
+
