@@ -66,7 +66,9 @@ export default function UsersPage() {
     } catch (error: unknown) {
       console.error('Error creating user:', error);
       const msg = error instanceof Error ? error.message.toLowerCase() : '';
-      if (msg.includes('401') || msg.includes('permission') || msg.includes('unauthorized') || msg.includes('42501')) {
+      if (msg.includes('no_session')) {
+        setToast({ type: 'error', message: 'Sesion expirada. Vuelve a iniciar sesion.' });
+      } else if (msg.includes('forbidden') || msg.includes('401') || msg.includes('permission') || msg.includes('unauthorized') || msg.includes('42501')) {
         setToast({ type: 'error', message: 'No tienes permisos para crear usuarios. Inicia sesion con un admin valido.' });
       } else if (msg.includes('duplicate') || msg.includes('unique') || msg.includes('already')) {
         setToast({ type: 'error', message: 'Ese email ya esta registrado.' });

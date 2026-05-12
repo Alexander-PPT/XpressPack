@@ -1,6 +1,7 @@
 import api from './api';
 import { supabase } from '../lib/supabase';
 import type { User } from '../types';
+import { getUser } from './storageService';
 
 const shouldUseSupabase = () => {
   const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
@@ -31,21 +32,26 @@ export const createUser = async (payload: {
   telefonoContacto?: string;
 }) => {
   if (shouldUseSupabase()) {
-    const { data, error } = await supabase
-      .from('usuarios')
-      .insert({
-        nombre: payload.nombre,
-        email: payload.email,
-        rol: payload.rol,
-        estado: true,
-        telefonoContacto: payload.telefonoContacto || null,
-        passwordHash: payload.password
-      })
-      .select('id,nombre,email,rol,estado,"sucursalId"')
-      .single();
+    const currentUser = getUser<User>();
+    if (!currentUser?.email) {
+      throw new Error('NO_SESSION');
+    }
+
+    const { data, error } = await supabase.rpc('create_usuario_admin', {
+      p_actor_email: currentUser.email,
+      p_nombre: payload.nombre,
+      p_email: payload.email,
+      p_password: payload.password,
+      p_rol: payload.rol,
+      p_telefono_contacto: payload.telefonoContacto ?? null,
+    });
 
     if (error) throw error;
-    return data as User;
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      throw new Error('USER_CREATE_FAILED');
+    }
+
+    return data[0] as User;
   }
 
   const { data } = await api.post('/users', payload);
