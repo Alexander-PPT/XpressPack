@@ -28,6 +28,27 @@
     @apply rounded-xl bg-white/80 shadow-soft backdrop-blur;
   }
 
+  .auth-shell {
+    @apply relative overflow-hidden;
+    background: linear-gradient(135deg, #f5efe6 0%, #ece2d3 100%);
+  }
+
+  .auth-shell::before {
+    content: '';
+    position: absolute;
+    width: 420px;
+    height: 420px;
+    border-radius: 9999px;
+    background: radial-gradient(circle, rgba(31, 138, 112, 0.14) 0%, rgba(31, 138, 112, 0) 70%);
+    top: -120px;
+    left: -120px;
+    pointer-events: none;
+  }
+
+  .auth-card {
+    @apply rounded-2xl border border-clay/60 bg-white/90 p-7 shadow-soft md:p-10;
+  }
+
   .btn {
     @apply rounded-lg bg-pine px-5 py-3 text-sm font-semibold text-white shadow-soft transition;
   }
