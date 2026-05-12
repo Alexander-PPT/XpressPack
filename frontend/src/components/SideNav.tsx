@@ -1,56 +1,76 @@
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-import { logout } from '../services/authService';
-import { clearSession } from '../services/storageService';
-import { LayoutDashboard, Package, BarChart3, Users, MapPin, LogOut } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import {
+  LayoutDashboard,
+  Package,
+  FileText,
+  Users,
+  Building2,
+  LogOut,
+  Plus,
+} from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+
+const NAV_ITEMS: Array<{
+  icon: typeof LayoutDashboard;
+  label: string;
+  href: string;
+  roles: Array<'ADMIN' | 'OPERARIO'>;
+}> = [
+  { icon: LayoutDashboard, label: 'Dashboard', href: '/app', roles: ['ADMIN', 'OPERARIO'] },
+  { icon: Package, label: 'Envios', href: '/app/envios', roles: ['ADMIN', 'OPERARIO'] },
+  { icon: FileText, label: 'Reportes', href: '/app/reportes', roles: ['ADMIN', 'OPERARIO'] },
+  { icon: Users, label: 'Usuarios', href: '/app/usuarios', roles: ['ADMIN'] },
+  { icon: Building2, label: 'Sucursales', href: '/app/sucursales', roles: ['ADMIN'] },
+];
 
 export default function SideNav() {
+  const location = useLocation();
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } finally {
-      clearSession();
-      navigate('/login', { replace: true });
-    }
+  const visibleItems = NAV_ITEMS.filter((item) => item.roles.includes((user?.rol ?? 'OPERARIO') as 'ADMIN' | 'OPERARIO'));
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
   };
 
-  const navItems = [
-    { icon: <LayoutDashboard className="h-5 w-5" />, label: 'Dashboard', href: '/app' },
-    { icon: <Package className="h-5 w-5" />, label: 'Envíos', href: '/app/envios' },
-    { icon: <BarChart3 className="h-5 w-5" />, label: 'Reportes', href: '/app/reportes' },
-    { icon: <Users className="h-5 w-5" />, label: 'Usuarios', href: '/app/usuarios' },
-    { icon: <MapPin className="h-5 w-5" />, label: 'Sucursales', href: '/app/sucursales' },
-  ];
-
   return (
-    <aside className="bg-gradient-to-b from-clay/40 to-clay/20 px-4 py-8 md:px-6 md:py-10 flex flex-col h-full">
-      <div className="mb-8">
-        <h1 className="font-display text-2xl font-bold text-gradient">XpressPack</h1>
-        <p className="text-xs text-ink/50 mt-1">Admin Panel</p>
+    <aside className="w-60 min-h-screen bg-white/80 backdrop-blur-sm border-r border-clay/30 px-6 py-8 flex flex-col">
+      <div>
+        <h1 className="font-display text-4xl text-gradient leading-none">XpressPack</h1>
+        <p className="text-sm text-ink/50 mt-2">Admin Panel</p>
       </div>
 
-      <nav className="flex-1 grid gap-2">
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            to={item.href}
-            className="nav-link group"
-          >
-            <span className="text-ink/70 group-hover:text-pine transition">{item.icon}</span>
-            <span>{item.label}</span>
-          </Link>
-        ))}
+      <nav className="mt-10 space-y-2">
+        {visibleItems.map((item) => {
+          const Icon = item.icon;
+          const isActive =
+            location.pathname === item.href ||
+            (item.href !== '/app' && location.pathname.startsWith(item.href));
+
+          return (
+            <Link key={item.href} to={item.href} className={`nav-link ${isActive ? 'active' : ''}`}>
+              <Icon className="h-5 w-5" />
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
       </nav>
 
-      <div className="border-t border-clay/40 pt-4">
+      <div className="mt-auto space-y-3">
+        <Link to="/app/envios/nuevo" className="btn btn-primary w-full justify-center">
+          <Plus className="h-4 w-4" />
+          Nuevo envio
+        </Link>
+
         <button
+          type="button"
           onClick={handleLogout}
-          className="nav-link w-full text-left text-error hover:bg-error/5 justify-start"
+          className="btn btn-ghost w-full justify-start text-error hover:bg-error/10"
         >
-          <LogOut className="h-5 w-5" />
-          <span>Cerrar sesión</span>
+          <LogOut className="h-4 w-4" />
+          Cerrar sesion
         </button>
       </div>
     </aside>

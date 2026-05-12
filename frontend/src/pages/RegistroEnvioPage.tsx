@@ -6,6 +6,7 @@ import { fetchSucursales } from '../services/sucursalService';
 import type { CreateEnvioRequest, Sucursal } from '../types';
 import Button from '../components/Button';
 import Alert from '../components/Alert';
+import { useDniLookup } from '../hooks/useDniLookup';
 
 export default function RegistroEnvioPage() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function RegistroEnvioPage() {
   const [error, setError] = useState<string | null>(null);
   const [sucursales, setSucursales] = useState<Sucursal[]>([]);
   const [step, setStep] = useState(1);
+  const { lookupDni, dniLoading, dniError, clearDniError } = useDniLookup();
 
   const [formData, setFormData] = useState<CreateEnvioRequest>({
     remitenteDni: '',
@@ -35,6 +37,7 @@ export default function RegistroEnvioPage() {
         if (isMounted) setSucursales(data);
       })
       .catch(() => {});
+
     return () => {
       isMounted = false;
     };
@@ -48,6 +51,32 @@ export default function RegistroEnvioPage() {
     }));
   };
 
+  const handleRemitenteDniChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 8);
+    clearDniError();
+    setFormData((prev) => ({ ...prev, remitenteDni: value }));
+
+    if (value.length === 8) {
+      const nombre = await lookupDni(value);
+      if (nombre) {
+        setFormData((prev) => ({ ...prev, remitenteNombre: nombre }));
+      }
+    }
+  };
+
+  const handleDestinatarioDniChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 8);
+    clearDniError();
+    setFormData((prev) => ({ ...prev, destinatarioDni: value }));
+
+    if (value.length === 8) {
+      const nombre = await lookupDni(value);
+      if (nombre) {
+        setFormData((prev) => ({ ...prev, destinatarioNombre: nombre }));
+      }
+    }
+  };
+
   const validateStep = () => {
     if (step === 1) {
       if (!formData.remitenteDni || !formData.remitenteNombre) {
@@ -55,7 +84,7 @@ export default function RegistroEnvioPage() {
         return false;
       }
       if (formData.remitenteDni.length !== 8) {
-        setError('El DNI debe tener 8 dígitos');
+        setError('El DNI debe tener 8 digitos');
         return false;
       }
     } else if (step === 2) {
@@ -64,7 +93,7 @@ export default function RegistroEnvioPage() {
         return false;
       }
       if (formData.destinatarioDni.length !== 8) {
-        setError('El DNI debe tener 8 dígitos');
+        setError('El DNI debe tener 8 digitos');
         return false;
       }
     } else if (step === 3) {
@@ -82,6 +111,7 @@ export default function RegistroEnvioPage() {
         return false;
       }
     }
+
     setError(null);
     return true;
   };
@@ -102,8 +132,15 @@ export default function RegistroEnvioPage() {
     try {
       await createShipment(formData);
       navigate('/app/envios', { replace: true });
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al registrar el envío. Verifica los datos o el DNI de destino.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message.toLowerCase() : '';
+      if (msg.includes('foreign') || msg.includes('sucursal')) {
+        setError('Verifica que las sucursales seleccionadas sean validas.');
+      } else if (msg.includes('dni')) {
+        setError('El DNI ingresado no es valido. Verifica los datos.');
+      } else {
+        setError('No se pudo registrar el envio. Verifica los datos e intenta nuevamente.');
+      }
     } finally {
       setLoading(false);
     }
@@ -112,32 +149,29 @@ export default function RegistroEnvioPage() {
   const steps = [
     { number: 1, title: 'Remitente', icon: <User className="h-5 w-5" /> },
     { number: 2, title: 'Destinatario', icon: <Package className="h-5 w-5" /> },
-    { number: 3, title: 'Sucursales & Peso', icon: <MapPin className="h-5 w-5" /> },
+    { number: 3, title: 'Sucursales y peso', icon: <MapPin className="h-5 w-5" /> },
     { number: 4, title: 'Detalles', icon: <FileText className="h-5 w-5" /> }
   ];
 
   return (
     <div className="space-y-8 max-w-3xl">
-      {/* Header */}
       <div>
         <Button onClick={() => navigate(-1)} variant="ghost" size="sm" className="mb-4">
           <ChevronLeft className="h-4 w-4" />
           Volver
         </Button>
-        <h1 className="font-display text-4xl font-bold">Registrar nuevo envío</h1>
-        <p className="text-sm text-ink/60 mt-2">Completa el formulario para generar tracking y guía logística</p>
+        <h1 className="font-display text-4xl font-bold">Registrar nuevo envio</h1>
+        <p className="text-sm text-ink/60 mt-2">Completa el formulario para generar tracking y guia logistica</p>
       </div>
 
-      {/* Progress Steps */}
       <div className="card p-6">
         <div className="flex justify-between items-center">
           {steps.map((s, idx) => (
             <div key={s.number} className="flex-1 flex items-center">
               <button
+                type="button"
                 onClick={() => step >= s.number && setStep(s.number)}
-                className={`flex items-center gap-3 transition ${
-                  step >= s.number ? 'opacity-100' : 'opacity-50'
-                }`}
+                className={`flex items-center gap-3 transition ${step >= s.number ? 'opacity-100' : 'opacity-50'}`}
               >
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition ${
@@ -148,7 +182,7 @@ export default function RegistroEnvioPage() {
                       : 'bg-clay/20 text-ink/50'
                   }`}
                 >
-                  {step > s.number ? '✓' : s.number}
+                  {step > s.number ? '?' : s.number}
                 </div>
                 <span className={`text-sm font-semibold hidden md:block ${step === s.number ? 'text-pine' : 'text-ink/60'}`}>
                   {s.title}
@@ -156,22 +190,17 @@ export default function RegistroEnvioPage() {
               </button>
 
               {idx < steps.length - 1 && (
-                <div
-                  className={`flex-1 h-1 mx-2 rounded-full transition ${
-                    step > s.number ? 'bg-success' : 'bg-clay/20'
-                  }`}
-                />
+                <div className={`flex-1 h-1 mx-2 rounded-full transition ${step > s.number ? 'bg-success' : 'bg-clay/20'}`} />
               )}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
         {error && <Alert type="error" message={error} onClose={() => setError(null)} />}
+        {dniError && <Alert type="warning" message={dniError} onClose={clearDniError} />}
 
-        {/* Step 1: Remitente */}
         {step === 1 && (
           <div className="card p-8 space-y-6 slide-in">
             <div className="flex items-center gap-3">
@@ -190,10 +219,14 @@ export default function RegistroEnvioPage() {
                   name="remitenteDni"
                   placeholder="12345678"
                   maxLength={8}
+                  inputMode="numeric"
+                  pattern="\d{8}"
                   value={formData.remitenteDni}
-                  onChange={handleChange}
+                  onChange={handleRemitenteDniChange}
+                  disabled={loading}
                   required
                 />
+                {dniLoading && <p className="text-xs text-ink/60 mt-1">Consultando RENIEC...</p>}
               </div>
               <div className="form-group">
                 <label className="field-label required">Nombre del remitente</label>
@@ -201,9 +234,10 @@ export default function RegistroEnvioPage() {
                   className="input"
                   type="text"
                   name="remitenteNombre"
-                  placeholder="Juan Pérez"
+                  placeholder="Juan Perez"
                   value={formData.remitenteNombre}
                   onChange={handleChange}
+                  disabled={loading || dniLoading}
                   required
                 />
               </div>
@@ -213,14 +247,11 @@ export default function RegistroEnvioPage() {
               <Button onClick={() => navigate(-1)} variant="secondary">
                 Cancelar
               </Button>
-              <Button onClick={handleNext}>
-                Siguiente
-              </Button>
+              <Button onClick={handleNext}>Siguiente</Button>
             </div>
           </div>
         )}
 
-        {/* Step 2: Destinatario */}
         {step === 2 && (
           <div className="card p-8 space-y-6 slide-in">
             <div className="flex items-center gap-3">
@@ -228,7 +259,7 @@ export default function RegistroEnvioPage() {
                 <Package className="h-6 w-6 text-amber" />
               </div>
               <h2 className="font-display text-2xl font-bold">Datos del destinatario</h2>
-              <span className="text-xs text-ink/50 ml-auto">Se validará en RENIEC</span>
+              <span className="text-xs text-ink/50 ml-auto">Se validara en RENIEC</span>
             </div>
 
             <div className="form-row">
@@ -240,10 +271,14 @@ export default function RegistroEnvioPage() {
                   name="destinatarioDni"
                   placeholder="87654321"
                   maxLength={8}
+                  inputMode="numeric"
+                  pattern="\d{8}"
                   value={formData.destinatarioDni}
-                  onChange={handleChange}
+                  onChange={handleDestinatarioDniChange}
+                  disabled={loading}
                   required
                 />
+                {dniLoading && <p className="text-xs text-ink/60 mt-1">Consultando RENIEC...</p>}
               </div>
               <div className="form-group">
                 <label className="field-label required">Nombre del destinatario</label>
@@ -251,9 +286,10 @@ export default function RegistroEnvioPage() {
                   className="input"
                   type="text"
                   name="destinatarioNombre"
-                  placeholder="María García"
+                  placeholder="Maria Garcia"
                   value={formData.destinatarioNombre}
                   onChange={handleChange}
+                  disabled={loading || dniLoading}
                   required
                 />
               </div>
@@ -263,14 +299,11 @@ export default function RegistroEnvioPage() {
               <Button onClick={() => setStep(1)} variant="secondary">
                 Anterior
               </Button>
-              <Button onClick={handleNext}>
-                Siguiente
-              </Button>
+              <Button onClick={handleNext}>Siguiente</Button>
             </div>
           </div>
         )}
 
-        {/* Step 3: Sucursales & Peso */}
         {step === 3 && (
           <div className="card p-8 space-y-6 slide-in">
             <div className="flex items-center gap-3">
@@ -288,6 +321,7 @@ export default function RegistroEnvioPage() {
                   name="sucursalOrigenId"
                   value={formData.sucursalOrigenId}
                   onChange={handleChange}
+                  disabled={loading}
                   required
                 >
                   <option value="">Seleccionar...</option>
@@ -305,6 +339,7 @@ export default function RegistroEnvioPage() {
                   name="sucursalDestinoId"
                   value={formData.sucursalDestinoId}
                   onChange={handleChange}
+                  disabled={loading}
                   required
                 >
                   <option value="">Seleccionar...</option>
@@ -328,6 +363,7 @@ export default function RegistroEnvioPage() {
                   min="0"
                   value={formData.peso}
                   onChange={handleChange}
+                  disabled={loading}
                   required
                 />
               </div>
@@ -340,6 +376,7 @@ export default function RegistroEnvioPage() {
                   placeholder="30x20x10 cm"
                   value={formData.dimensiones}
                   onChange={handleChange}
+                  disabled={loading}
                   required
                 />
               </div>
@@ -349,14 +386,11 @@ export default function RegistroEnvioPage() {
               <Button onClick={() => setStep(2)} variant="secondary">
                 Anterior
               </Button>
-              <Button onClick={handleNext}>
-                Siguiente
-              </Button>
+              <Button onClick={handleNext}>Siguiente</Button>
             </div>
           </div>
         )}
 
-        {/* Step 4: Detalles */}
         {step === 4 && (
           <div className="card p-8 space-y-6 slide-in">
             <div className="flex items-center gap-3">
@@ -374,11 +408,12 @@ export default function RegistroEnvioPage() {
                   name="tipoServicio"
                   value={formData.tipoServicio}
                   onChange={handleChange}
+                  disabled={loading}
                   required
                 >
-                  <option value="ESTANDAR">Estándar</option>
+                  <option value="ESTANDAR">Estandar</option>
                   <option value="EXPRESS">Express</option>
-                  <option value="FRAGIL">Frágil</option>
+                  <option value="FRAGIL">Fragil</option>
                 </select>
               </div>
               <div className="form-group">
@@ -391,12 +426,13 @@ export default function RegistroEnvioPage() {
                   min="0"
                   value={formData.valorDeclarado}
                   onChange={handleChange}
+                  disabled={loading}
                 />
               </div>
             </div>
 
             <div className="form-group">
-              <label className="field-label required">Descripción del contenido</label>
+              <label className="field-label required">Descripcion del contenido</label>
               <textarea
                 className="textarea"
                 name="descripcion"
@@ -404,13 +440,14 @@ export default function RegistroEnvioPage() {
                 rows={4}
                 value={formData.descripcion}
                 onChange={handleChange}
+                disabled={loading}
                 required
               />
             </div>
 
             <div className="bg-sand/50 rounded-lg p-4">
               <p className="text-xs text-ink/60">
-                <strong>Resumen:</strong> Envío de {formData.peso} kg desde {sucursales.find(s => s.id === formData.sucursalOrigenId)?.nombre || 'sucursal'} hacia {sucursales.find(s => s.id === formData.sucursalDestinoId)?.nombre || 'sucursal'} como {formData.tipoServicio.toLowerCase()}
+                <strong>Resumen:</strong> Envio de {formData.peso} kg desde {sucursales.find((s) => s.id === formData.sucursalOrigenId)?.nombre || 'sucursal'} hacia {sucursales.find((s) => s.id === formData.sucursalDestinoId)?.nombre || 'sucursal'} como {formData.tipoServicio.toLowerCase()}
               </p>
             </div>
 
@@ -418,12 +455,8 @@ export default function RegistroEnvioPage() {
               <Button onClick={() => setStep(3)} variant="secondary">
                 Anterior
               </Button>
-              <Button
-                type="submit"
-                isLoading={loading}
-                disabled={loading}
-              >
-                Registrar envío
+              <Button type="submit" isLoading={loading} disabled={loading}>
+                Registrar envio
               </Button>
             </div>
           </div>

@@ -1,15 +1,15 @@
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
-import { getToken } from '../services/storageService';
 import { useAuth } from '../context/AuthContext';
+import type { Role } from '../types';
 
-interface ProtectedRouteProps {
+interface RoleRouteProps {
   children: ReactNode;
+  allowedRoles: Role[];
 }
 
-export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { loading } = useAuth();
-  const token = getToken();
+export default function RoleRoute({ children, allowedRoles }: RoleRouteProps) {
+  const { user, loading } = useAuth();
 
   if (loading) {
     return (
@@ -19,8 +19,8 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  if (!token) {
-    return <Navigate to="/login" replace />;
+  if (!user || !allowedRoles.includes(user.rol)) {
+    return <Navigate to="/app" replace />;
   }
 
   return children;

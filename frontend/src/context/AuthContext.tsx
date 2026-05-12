@@ -1,9 +1,10 @@
-import { createContext, useContext, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { User } from '../types';
 import { getUser, saveUser, clearSession } from '../services/storageService';
 
 interface AuthState {
   user: User | null;
+  loading: boolean;
   setUser: (user: User | null) => void;
   logout: () => void;
 }
@@ -11,7 +12,14 @@ interface AuthState {
 const AuthContext = createContext<AuthState | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUserState] = useState<User | null>(() => getUser<User>());
+  const [user, setUserState] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const persisted = getUser<User>();
+    setUserState(persisted);
+    setLoading(false);
+  }, []);
 
   const setUser = (nextUser: User | null) => {
     setUserState(nextUser);
@@ -25,7 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUserState(null);
   };
 
-  const value = useMemo(() => ({ user, setUser, logout }), [user]);
+  const value = useMemo(() => ({ user, loading, setUser, logout }), [user, loading]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

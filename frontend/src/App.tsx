@@ -10,6 +10,7 @@ import DetalleEnvioPage from './pages/DetalleEnvioPage';
 import RegistroEnvioPage from './pages/RegistroEnvioPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
+import RoleRoute from './components/RoleRoute';
 import AppLayout from './layouts/AppLayout';
 
 function App() {
@@ -38,8 +39,22 @@ function App() {
         <Route path="envios/nuevo" element={<RegistroEnvioPage />} />
         <Route path="envios/:id" element={<DetalleEnvioPage />} />
         <Route path="reportes" element={<ReportsPage />} />
-        <Route path="usuarios" element={<UsersPage />} />
-        <Route path="sucursales" element={<SucursalesPage />} />
+        <Route
+          path="usuarios"
+          element={
+            <RoleRoute allowedRoles={['ADMIN']}>
+              <UsersPage />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="sucursales"
+          element={
+            <RoleRoute allowedRoles={['ADMIN']}>
+              <SucursalesPage />
+            </RoleRoute>
+          }
+        />
       </Route>
       <Route path="*" element={<Navigate to="/tracking" replace />} />
     </Routes>
