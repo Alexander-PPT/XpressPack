@@ -83,7 +83,7 @@ export default function UsersPage() {
             <p className="text-sm text-ink/60 mt-1">Registra miembros internos y define su rol de acceso.</p>
           </div>
 
-          <form onSubmit={submit} className="space-y-6">
+          <form onSubmit={submit} className="space-y-6" autoComplete="off">
             <div className="form-row">
               <div className="form-group">
                 <label className="field-label required">Nombre completo</label>
@@ -94,6 +94,7 @@ export default function UsersPage() {
                     placeholder="Juan Pérez"
                     value={form.nombre}
                     onChange={(e) => setForm({ ...form, nombre: e.target.value })}
+                    autoComplete="off"
                     required
                     disabled={creating}
                   />
@@ -109,6 +110,7 @@ export default function UsersPage() {
                     placeholder="juan@empresa.com"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    autoComplete="off"
                     required
                     disabled={creating}
                   />
@@ -127,6 +129,7 @@ export default function UsersPage() {
                     placeholder="********"
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    autoComplete="new-password"
                     required
                     disabled={creating}
                   />
@@ -244,4 +247,5 @@ export default function UsersPage() {
     </div>
   );
 }
+
 
