@@ -15,20 +15,27 @@ export default function ShipmentsPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let isMounted = true;
     const loadShipments = async () => {
       try {
-        setLoading(true);
+        if (isMounted) setLoading(true);
         const data = await fetchShipments();
-        setShipments(data);
-        setFilteredShipments(data);
+        if (isMounted) {
+          setShipments(data);
+          setFilteredShipments(data);
+        }
       } catch (error) {
         console.error('Error loading shipments:', error);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     loadShipments();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {

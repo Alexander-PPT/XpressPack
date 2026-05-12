@@ -14,23 +14,30 @@ export default function DashboardPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let isMounted = true;
     const loadData = async () => {
       try {
-        setLoading(true);
+        if (isMounted) setLoading(true);
         const [shipsData, statsData] = await Promise.all([
           fetchShipments(),
           fetchShipmentStats(),
         ]);
-        setShipments(shipsData);
-        setStats(statsData);
+        if (isMounted) {
+          setShipments(shipsData);
+          setStats(statsData);
+        }
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     loadData();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleNewShipment = () => navigate('/app/envios/nuevo');

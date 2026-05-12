@@ -29,7 +29,15 @@ export default function RegistroEnvioPage() {
   });
 
   useEffect(() => {
-    fetchSucursales().then(setSucursales).catch(() => {});
+    let isMounted = true;
+    fetchSucursales()
+      .then((data) => {
+        if (isMounted) setSucursales(data);
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {

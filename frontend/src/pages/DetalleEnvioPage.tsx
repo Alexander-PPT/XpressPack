@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, User, Truck, History } from 'lucide-react';
 import StatusPill from '../components/StatusPill';
@@ -15,14 +15,24 @@ export default function DetalleEnvioPage() {
   const [error, setError] = useState<string | null>(null);
   const [updating, setUpdating] = useState(false);
 
-  useEffect(() => {
+    useEffect(() => {
+    let isMounted = true;
     if (id) {
       setLoading(true);
       fetchShipmentById(id)
-        .then((res) => setShipment(res.shipment))
-        .catch(() => setError('Error al cargar los detalles del envío.'))
-        .finally(() => setLoading(false));
+        .then((res) => {
+          if (isMounted) setShipment(res.shipment);
+        })
+        .catch(() => {
+          if (isMounted) setError('Error al cargar los detalles del envío.');
+        })
+        .finally(() => {
+          if (isMounted) setLoading(false);
+        });
     }
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
 
   const handleUpdateStatus = async (newStatus: ShipmentStatus) => {
@@ -33,7 +43,7 @@ export default function DetalleEnvioPage() {
       const res = await fetchShipmentById(id);
       setShipment(res.shipment);
     } catch (err) {
-      alert('Error al actualizar el estado. Verifica que la transición sea válida.');
+      alert('Error al actualizar el estado. Verifica que la transiciÃ³n sea vÃ¡lida.');
     } finally {
       setUpdating(false);
     }
@@ -64,7 +74,7 @@ export default function DetalleEnvioPage() {
         <Alert
           type="error"
           title="Error"
-          message={error || 'Envío no encontrado'}
+          message={error || 'EnvÃ­o no encontrado'}
         />
       </div>
     );
@@ -78,15 +88,15 @@ export default function DetalleEnvioPage() {
       <div>
         <Button onClick={() => navigate(-1)} variant="ghost" size="sm" className="mb-4">
           <ChevronLeft className="h-4 w-4" />
-          Volver a envíos
+          Volver a envÃ­os
         </Button>
         
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div>
-            <h1 className="font-display text-4xl font-bold">Detalle del envío</h1>
+            <h1 className="font-display text-4xl font-bold">Detalle del envÃ­o</h1>
             <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-ink/60">
-              <span>Guía: <code className="font-mono font-semibold text-ink/80">{shipment.guia}</code></span>
-              <span>•</span>
+              <span>GuÃ­a: <code className="font-mono font-semibold text-ink/80">{shipment.guia}</code></span>
+              <span>â€¢</span>
               <span>Tracking: <code className="font-mono font-semibold text-ink/80">{shipment.codigoTracking}</code></span>
             </div>
           </div>
@@ -177,8 +187,8 @@ export default function DetalleEnvioPage() {
             </div>
 
             <div className="pt-4 border-t border-clay/20">
-              <p className="text-xs uppercase tracking-widest text-ink/50 font-semibold">Descripción</p>
-              <p className="text-sm mt-2 text-ink/70">{shipment.descripcion || 'Sin descripción'}</p>
+              <p className="text-xs uppercase tracking-widest text-ink/50 font-semibold">DescripciÃ³n</p>
+              <p className="text-sm mt-2 text-ink/70">{shipment.descripcion || 'Sin descripciÃ³n'}</p>
             </div>
           </div>
         </div>
@@ -188,7 +198,7 @@ export default function DetalleEnvioPage() {
           {/* Status Actions */}
           <div className="card p-6 space-y-4">
             <h3 className="font-display text-lg font-bold">Actualizar estado</h3>
-            <p className="text-sm text-ink/60">El flujo logístico es unidireccional.</p>
+            <p className="text-sm text-ink/60">El flujo logÃ­stico es unidireccional.</p>
             
             <div className="space-y-3">
               <Button
@@ -198,7 +208,7 @@ export default function DetalleEnvioPage() {
                 onClick={() => handleUpdateStatus('Recibido')}
                 disabled={updating || currentStatus !== 'Recibido'}
               >
-                ✓ Recibido
+                âœ“ Recibido
               </Button>
               <Button
                 variant={currentStatus === 'En Viaje' ? 'primary' : 'secondary'}
@@ -207,7 +217,7 @@ export default function DetalleEnvioPage() {
                 onClick={() => handleUpdateStatus('En Viaje')}
                 disabled={updating || currentStatus === 'Entregado'}
               >
-                ✈ En viaje
+                âœˆ En viaje
               </Button>
               <Button
                 variant={currentStatus === 'Entregado' ? 'success' : 'secondary'}
@@ -216,7 +226,7 @@ export default function DetalleEnvioPage() {
                 onClick={() => handleUpdateStatus('Entregado')}
                 disabled={updating || currentStatus === 'Recibido'}
               >
-                ✓ Entregado
+                âœ“ Entregado
               </Button>
             </div>
           </div>
@@ -267,7 +277,7 @@ export default function DetalleEnvioPage() {
                   <th>Fecha y hora</th>
                   <th>Estado</th>
                   <th>Registrado por</th>
-                  <th>Observación</th>
+                  <th>ObservaciÃ³n</th>
                 </tr>
               </thead>
               <tbody>
@@ -285,7 +295,7 @@ export default function DetalleEnvioPage() {
                       <span className="text-sm font-medium">{hist.registradoPor.nombre}</span>
                     </td>
                     <td>
-                      <span className="text-sm text-ink/60">{hist.observacion || '—'}</span>
+                      <span className="text-sm text-ink/60">{hist.observacion || 'â€”'}</span>
                     </td>
                   </tr>
                 ))}
@@ -297,3 +307,5 @@ export default function DetalleEnvioPage() {
     </div>
   );
 }
+
+

@@ -10,6 +10,11 @@ interface ShipmentTableProps {
 
 export default function ShipmentTable({ shipments, onRowClick }: ShipmentTableProps) {
   const navigate = useNavigate();
+  const formatDate = (value?: string) => {
+    if (!value) return 'Sin fecha';
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? 'Sin fecha' : parsed.toLocaleDateString('es-PE');
+  };
 
   const handleRowClick = (id: string) => {
     if (onRowClick) {
@@ -83,7 +88,7 @@ export default function ShipmentTable({ shipments, onRowClick }: ShipmentTablePr
                 <td>
                   <div className="flex items-center gap-1 text-sm text-ink/60">
                     <Calendar className="h-4 w-4" />
-                    {new Date(shipment.createdAt || Date.now()).toLocaleDateString('es-PE')}
+                    {formatDate(shipment.createdAt)}
                   </div>
                 </td>
                 <td className="text-right">

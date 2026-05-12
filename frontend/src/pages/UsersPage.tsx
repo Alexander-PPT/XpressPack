@@ -18,20 +18,31 @@ export default function UsersPage() {
   });
 
   useEffect(() => {
+    let isMounted = true;
     const loadUsers = async () => {
       try {
-        setLoading(true);
+        if (isMounted) setLoading(true);
         const data = await fetchUsers();
-        setUsers(data);
+        if (isMounted) setUsers(data);
       } catch (error) {
         console.error('Error loading users:', error);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     loadUsers();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
+
+  const formatDate = (value?: string) => {
+    if (!value) return 'Sin fecha';
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? 'Sin fecha' : parsed.toLocaleDateString('es-PE');
+  };
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -209,7 +220,7 @@ export default function UsersPage() {
                     </td>
                     <td>
                       <span className="text-sm text-ink/60">
-                        {new Date(user.createdAt || Date.now()).toLocaleDateString('es-PE')}
+                        {formatDate(user.createdAt)}
                       </span>
                     </td>
                   </tr>

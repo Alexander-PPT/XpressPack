@@ -18,19 +18,24 @@ export default function SucursalesPage() {
   });
 
   useEffect(() => {
+    let isMounted = true;
     const loadSucursales = async () => {
       try {
-        setLoading(true);
+        if (isMounted) setLoading(true);
         const data = await fetchSucursales();
-        setSucursales(data);
+        if (isMounted) setSucursales(data);
       } catch (error) {
         console.error('Error loading sucursales:', error);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     loadSucursales();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const submit = async (event: React.FormEvent) => {
