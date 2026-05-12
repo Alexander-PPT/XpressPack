@@ -18,13 +18,38 @@ const normalizeUser = (raw: Record<string, unknown>): User => ({
 });
 
 export const login = async (email: string, password: string) => {
+  const normalizedEmail = email.trim().toLowerCase();
+
   const { data, error } = await supabase.rpc('login_usuario', {
-    p_email: email,
+    p_email: normalizedEmail,
     p_password: password,
   });
 
-  if (error || !data || data.length === 0) {
-    throw new Error(error?.message || 'Credenciales invalidas');
+  if (error) {
+    throw new Error(error.message || 'LOGIN_FAILED');
+  }
+
+  if (!data || data.length === 0) {
+    // Mensaje mas preciso para UX en login.
+    const { data: userRow, error: existsError } = await supabase
+      .from('usuarios')
+      .select('id,estado')
+      .eq('email', normalizedEmail)
+      .maybeSingle();
+
+    if (existsError) {
+      throw new Error('LOGIN_FAILED');
+    }
+
+    if (!userRow) {
+      throw new Error('USER_NOT_FOUND');
+    }
+
+    if (userRow.estado === false) {
+      throw new Error('USER_INACTIVE');
+    }
+
+    throw new Error('INVALID_PASSWORD');
   }
 
   const usuario = normalizeUser(data[0] as Record<string, unknown>);

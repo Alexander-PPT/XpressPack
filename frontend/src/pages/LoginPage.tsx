@@ -21,8 +21,17 @@ export default function LoginPage() {
     try {
       await login(email, password);
       navigate('/app', { replace: true });
-    } catch {
-      setError('Credenciales inválidas. Verifica tu email y contraseña.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : '';
+      if (msg.includes('USER_NOT_FOUND')) {
+        setError('Usuario no existe. Verifica el email.');
+      } else if (msg.includes('USER_INACTIVE')) {
+        setError('Tu usuario esta inactivo. Contacta al administrador.');
+      } else if (msg.includes('INVALID_PASSWORD')) {
+        setError('Contrasena incorrecta. Intenta nuevamente.');
+      } else {
+        setError('Credenciales invalidas. Verifica tu email y contrasena.');
+      }
     } finally {
       setLoading(false);
     }
@@ -147,3 +156,4 @@ export default function LoginPage() {
     </div>
   );
 }
+
