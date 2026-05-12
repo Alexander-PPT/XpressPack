@@ -22,3 +22,32 @@ export const fetchUsers = async () => {
   const { data } = await api.get('/users');
   return data.data as User[];
 };
+
+export const createUser = async (payload: {
+  nombre: string;
+  email: string;
+  rol: 'ADMIN' | 'OPERARIO';
+  password: string;
+  telefonoContacto?: string;
+}) => {
+  if (shouldUseSupabase()) {
+    const { data, error } = await supabase
+      .from('usuarios')
+      .insert({
+        nombre: payload.nombre,
+        email: payload.email,
+        rol: payload.rol,
+        estado: true,
+        telefonoContacto: payload.telefonoContacto || null,
+        passwordHash: payload.password
+      })
+      .select('id,nombre,email,rol,estado,"sucursalId"')
+      .single();
+
+    if (error) throw error;
+    return data as User;
+  }
+
+  const { data } = await api.post('/users', payload);
+  return data.data as User;
+};
