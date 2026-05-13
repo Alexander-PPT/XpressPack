@@ -188,7 +188,7 @@ export const downloadReport = async (path: string) => {
 
   const kind = normalizeReportKind(path);
   const shipments = await fetchShipments();
-  const reportWindow = window.open('', '_blank', 'noopener,noreferrer');
+  const reportWindow = window.open('', '_blank');
 
   if (!reportWindow) {
     throw new Error('POPUP_BLOCKED');

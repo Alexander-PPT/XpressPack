@@ -84,15 +84,23 @@ export const createShipment = async (payload: CreateEnvioRequest) => {
 
 export const updateShipmentStatus = async (id: string, estado: ShipmentStatus) => {
   if (shouldUseSupabaseDirect()) {
-    const { data, error } = await supabase
-      .from('envios')
-      .update({ estado })
-      .eq('id', id)
-      .select()
-      .single();
+    const currentUser = getUser<{ email?: string }>();
+    if (!currentUser?.email) {
+      throw new Error('NO_SESSION');
+    }
+
+    const { data, error } = await supabase.rpc('update_envio_estado_admin', {
+      p_actor_email: currentUser.email.trim().toLowerCase(),
+      p_envio_id: id,
+      p_estado: estado
+    });
 
     if (error) throw error;
-    return data;
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      throw new Error('SHIPMENT_UPDATE_FAILED');
+    }
+
+    return data[0] as Shipment;
   }
 
   const { data } = await api.patch(`/shipments/${id}/estado`, { estadoNuevo: estado });
