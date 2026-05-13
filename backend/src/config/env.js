@@ -39,7 +39,7 @@ module.exports = {
   },
   
   reniec: {
-    apiUrl: process.env.RENIEC_API_URL || 'https://apiperu.dev/api',
+    apiUrl: process.env.RENIEC_API_URL || 'https://api.decolecta.com',
     apiKey: process.env.RENIEC_API_KEY || ''
   }
 };

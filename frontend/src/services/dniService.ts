@@ -11,22 +11,27 @@ interface DniApiResponse {
   data?: {
     nombreCompleto?: string;
     nombre_completo?: string;
+    full_name?: string;
     nombres?: string;
+    first_name?: string;
     apellidoPaterno?: string;
     apellido_paterno?: string;
+    first_last_name?: string;
     apellidoMaterno?: string;
     apellido_materno?: string;
+    second_last_name?: string;
   };
 }
 
 const normalizeDniResult = (payload: DniApiResponse): DniResult => {
   const data = payload.data ?? {};
-  const apellidoPaterno = data.apellidoPaterno ?? data.apellido_paterno ?? '';
-  const apellidoMaterno = data.apellidoMaterno ?? data.apellido_materno ?? '';
-  const nombres = data.nombres ?? '';
+  const apellidoPaterno = data.apellidoPaterno ?? data.apellido_paterno ?? data.first_last_name ?? '';
+  const apellidoMaterno = data.apellidoMaterno ?? data.apellido_materno ?? data.second_last_name ?? '';
+  const nombres = data.nombres ?? data.first_name ?? '';
   const nombreCompleto =
     data.nombreCompleto ??
     data.nombre_completo ??
+    data.full_name ??
     [nombres, apellidoPaterno, apellidoMaterno].filter(Boolean).join(' ').trim();
 
   if (!nombreCompleto) {

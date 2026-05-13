@@ -23,10 +23,13 @@ class ReniecService {
     }
 
     try {
-      const response = await axios.get(`${this.apiUrl}/dni/${dni}`, {
+      const response = await axios.get(`${this.apiUrl}/v1/reniec/dni`, {
         headers: {
           Authorization: `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json'
+        },
+        params: {
+          numero: dni
         },
         timeout: 10000
       });
@@ -57,10 +60,11 @@ class ReniecService {
 
   _normalizeDniResponse(payload) {
     const data = payload?.data || payload?.persona || payload || {};
-    const apellidoPaterno = data.apellido_paterno || data.apellidoPaterno || '';
-    const apellidoMaterno = data.apellido_materno || data.apellidoMaterno || '';
-    const nombres = data.nombres || '';
+    const apellidoPaterno = data.first_last_name || data.apellido_paterno || data.apellidoPaterno || '';
+    const apellidoMaterno = data.second_last_name || data.apellido_materno || data.apellidoMaterno || '';
+    const nombres = data.first_name || data.nombres || '';
     const nombreCompleto =
+      data.full_name ||
       data.nombre_completo ||
       data.nombreCompleto ||
       data.nombre ||
@@ -68,7 +72,7 @@ class ReniecService {
 
     return {
       valido: Boolean(payload?.success ?? payload?.valido ?? nombreCompleto),
-      dni: data.numero || data.dni || data.documento || '',
+      dni: data.document_number || data.numero || data.dni || data.documento || '',
       nombreCompleto,
       nombres,
       apellidoPaterno,
