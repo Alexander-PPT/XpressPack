@@ -40,7 +40,6 @@ export const createUser = async (payload: {
       p_password: payload.password.trim(),
       p_rol: payload.rol,
       p_telefono_contacto: payload.telefonoContacto ?? null,
-      p_sucursal_id: null,
     });
 
     if (error) throw error;
