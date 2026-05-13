@@ -1,7 +1,12 @@
 import { FileText, BarChart3, Download, Calendar } from 'lucide-react';
-import { openReport } from '../services/reportService';
+import { useState } from 'react';
+import { downloadReport } from '../services/reportService';
+import Alert from '../components/Alert';
 
 export default function ReportsPage() {
+  const [downloading, setDownloading] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
   const reports = [
     {
       id: 'envios',
@@ -21,6 +26,24 @@ export default function ReportsPage() {
     }
   ];
 
+  const handleDownload = async (reportId: string) => {
+    setDownloading(reportId);
+    setError(null);
+
+    try {
+      await downloadReport(`/reportes/${reportId}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : '';
+      if (msg.includes('403')) {
+        setError('Solo un administrador puede descargar reportes PDF.');
+      } else {
+        setError('No se pudo generar el PDF. Verifica la conexion con el backend e intenta nuevamente.');
+      }
+    } finally {
+      setDownloading(null);
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -31,12 +54,15 @@ export default function ReportsPage() {
         </p>
       </div>
 
+      {error && <Alert type="error" message={error} onClose={() => setError(null)} />}
+
       {/* Report Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {reports.map((report) => (
           <button
             key={report.id}
-            onClick={() => openReport(`/reportes/${report.id}`)}
+            onClick={() => handleDownload(report.id)}
+            disabled={downloading !== null}
             className="group card card-hover p-8 space-y-6 text-left transition hover:shadow-lg"
           >
             {/* Icon */}
@@ -53,7 +79,7 @@ export default function ReportsPage() {
             {/* Footer */}
             <div className="flex items-center gap-2 text-pine font-semibold group-hover:translate-x-1 transition">
               <Download className="h-4 w-4" />
-              <span>Descargar PDF</span>
+              <span>{downloading === report.id ? 'Generando PDF...' : 'Descargar PDF'}</span>
             </div>
           </button>
         ))}

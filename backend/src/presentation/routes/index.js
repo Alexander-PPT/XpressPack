@@ -7,6 +7,7 @@ const buildNotificationRoutes = require('./notification.routes');
 const buildReportRoutes = require('./report.routes');
 const buildUserRoutes = require('./user.routes');
 const buildSucursalRoutes = require('./sucursal.routes');
+const buildDniRoutes = require('./dni.routes');
 
 /**
  * Configurar rutas principales
@@ -35,6 +36,8 @@ const buildRoutes = (dependencies) => {
 
   // Rutas de reportes - PRÓXIMA FASE
   router.use('/reportes', authenticate, buildReportRoutes(dependencies));
+
+  router.use('/dni', authenticate, buildDniRoutes(dependencies.controllers.dniController));
 
   return router;
 };

@@ -39,7 +39,7 @@ module.exports = {
   },
   
   reniec: {
-    apiUrl: process.env.RENIEC_API_URL || 'https://api.reniec.gob.pe',
+    apiUrl: process.env.RENIEC_API_URL || 'https://apiperu.dev/api',
     apiKey: process.env.RENIEC_API_KEY || ''
   }
 };

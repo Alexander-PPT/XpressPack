@@ -3,8 +3,9 @@ const env = require('../../config/env');
 const AppError = require('../../shared/utils/app-error');
 
 /**
- * Servicio de integración con RENIEC
- * Valida DNIs contra la API del RENIEC
+ * Servicio de integracion con API de DNI.
+ *
+ * Se mantiene en backend para no exponer la API key en el bundle del frontend.
  */
 class ReniecService {
   constructor() {
@@ -12,59 +13,68 @@ class ReniecService {
     this.apiKey = env.reniec.apiKey;
   }
 
-  /**
-   * Valida un DNI contra RENIEC
-   */
   async validarDNI(dni) {
-    // En desarrollo o sin API key, saltear validación
-    if (!this.apiKey || process.env.NODE_ENV === 'development') {
-      return {
-        valido: true,
-        nombre: 'Usuario de Prueba',
-        mensaje: 'Validación de RENIEC deshabilitada en desarrollo'
-      };
+    if (!dni || !/^\d{8}$/.test(dni)) {
+      throw new AppError('DNI invalido. Debe tener 8 digitos.', 400);
+    }
+
+    if (!this.apiKey) {
+      throw new AppError('API de DNI no configurada en el servidor', 503);
     }
 
     try {
-      const response = await axios.get(
-        `${this.apiUrl}/dni/${dni}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${this.apiKey}`,
-            'Content-Type': 'application/json'
-          },
-          timeout: 10000 // 10 segundos
-        }
-      );
+      const response = await axios.get(`${this.apiUrl}/dni/${dni}`, {
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 10000
+      });
 
-      if (!response.data || !response.data.valido) {
-        throw new AppError('DNI no válido o no existe', 400);
+      const normalized = this._normalizeDniResponse(response.data);
+
+      if (!normalized.valido) {
+        throw new AppError('DNI no valido o no existe', 400);
       }
 
-      return response.data;
+      return normalized;
     } catch (error) {
       if (error.response?.status === 404) {
-        throw new AppError('DNI no encontrado en RENIEC', 400);
+        throw new AppError('DNI no encontrado en el registro', 400);
       }
 
-      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
-        // En producción, reintento; en desarrollo, permitir
-        if (process.env.NODE_ENV === 'production') {
-          throw new AppError('Servicio RENIEC no disponible temporalmente', 503);
-        }
-        return { valido: true, nombre: 'Fallback' };
+      if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+        throw new AppError('Servicio de DNI no disponible temporalmente', 503);
       }
 
       throw error;
     }
   }
 
-  /**
-   * Obtiene información de una persona por DNI
-   */
   async obtenerInfoPersona(dni) {
-    const datosValidos = await this.validarDNI(dni);
-    return datosValidos;
+    return this.validarDNI(dni);
+  }
+
+  _normalizeDniResponse(payload) {
+    const data = payload?.data || payload?.persona || payload || {};
+    const apellidoPaterno = data.apellido_paterno || data.apellidoPaterno || '';
+    const apellidoMaterno = data.apellido_materno || data.apellidoMaterno || '';
+    const nombres = data.nombres || '';
+    const nombreCompleto =
+      data.nombre_completo ||
+      data.nombreCompleto ||
+      data.nombre ||
+      [nombres, apellidoPaterno, apellidoMaterno].filter(Boolean).join(' ').trim();
+
+    return {
+      valido: Boolean(payload?.success ?? payload?.valido ?? nombreCompleto),
+      dni: data.numero || data.dni || data.documento || '',
+      nombreCompleto,
+      nombres,
+      apellidoPaterno,
+      apellidoMaterno,
+      mensaje: payload?.message || payload?.mensaje || 'DNI encontrado'
+    };
   }
 }
 

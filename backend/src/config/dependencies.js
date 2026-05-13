@@ -19,6 +19,7 @@ const NotificationController = require('../presentation/controllers/notification
 const ReportController = require('../presentation/controllers/report.controller');
 const UserController = require('../presentation/controllers/user.controller');
 const SucursalController = require('../presentation/controllers/sucursal.controller');
+const DniController = require('../presentation/controllers/dni.controller');
 
 /**
  * Crea y retorna todas las dependencias inyectadas
@@ -48,6 +49,7 @@ const configureDependencies = () => {
   const reportController = new ReportController(reportService);
   const userController = new UserController(userService);
   const sucursalController = new SucursalController(sucursalService);
+  const dniController = new DniController(reniecService);
 
   return {
     // Modelos
@@ -89,7 +91,8 @@ const configureDependencies = () => {
       notificationController,
       reportController,
       userController,
-      sucursalController
+      sucursalController,
+      dniController
     }
   };
 };
