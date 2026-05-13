@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { createUser, fetchUsers } from '../services/userService';
-import { Users, Mail, Lock, Shield, Plus, User as UserIcon, Eye, EyeOff } from 'lucide-react';
+import { createUser, fetchUsers, updateUserRole, deactivateUser } from '../services/userService';
+import { Users, Mail, Lock, Shield, Plus, User as UserIcon, Eye, EyeOff, Pencil, Save, Trash2, X } from 'lucide-react';
 import type { User } from '../types';
 import Button from '../components/Button';
 import Badge from '../components/Badge';
@@ -13,15 +13,20 @@ export default function UsersPage() {
   const [showForm, setShowForm] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [toast, setToast] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [editingRole, setEditingRole] = useState<'ADMIN' | 'OPERARIO'>('OPERARIO');
+  const [actionLoadingUserId, setActionLoadingUserId] = useState<string | null>(null);
+
   const [form, setForm] = useState({
     nombre: '',
     email: '',
     password: '',
-    rol: 'OPERARIO' as 'ADMIN' | 'OPERARIO'
+    rol: 'OPERARIO' as 'ADMIN' | 'OPERARIO',
   });
 
   useEffect(() => {
     let isMounted = true;
+
     const loadUsers = async () => {
       try {
         if (isMounted) setLoading(true);
@@ -56,6 +61,7 @@ export default function UsersPage() {
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     setCreating(true);
+
     try {
       const created = await createUser(form);
       setUsers((prev) => [created, ...prev]);
@@ -80,6 +86,55 @@ export default function UsersPage() {
     }
   };
 
+  const startEditRole = (user: User) => {
+    setEditingUserId(user.id);
+    setEditingRole(user.rol);
+  };
+
+  const cancelEditRole = () => {
+    setEditingUserId(null);
+  };
+
+  const saveRole = async (userId: string) => {
+    try {
+      setActionLoadingUserId(userId);
+      const updated = await updateUserRole(userId, editingRole);
+      setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, rol: updated.rol } : u)));
+      setToast({ type: 'success', message: 'Rol actualizado correctamente.' });
+      setEditingUserId(null);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message.toLowerCase() : '';
+      if (msg.includes('401') || msg.includes('42501') || msg.includes('permission')) {
+        setToast({ type: 'error', message: 'No tienes permisos para editar este usuario.' });
+      } else {
+        setToast({ type: 'error', message: 'No se pudo actualizar el rol.' });
+      }
+    } finally {
+      setActionLoadingUserId(null);
+    }
+  };
+
+  const handleDeactivate = async (user: User) => {
+    const ok = window.confirm(`Se desactivara el usuario ${user.nombre}. Deseas continuar?`);
+    if (!ok) return;
+
+    try {
+      setActionLoadingUserId(user.id);
+      await deactivateUser(user.id);
+      setUsers((prev) => prev.filter((u) => u.id !== user.id));
+      setToast({ type: 'success', message: 'Usuario desactivado correctamente.' });
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message.toLowerCase() : '';
+      if (msg.includes('401') || msg.includes('42501') || msg.includes('permission')) {
+        setToast({ type: 'error', message: 'No tienes permisos para desactivar usuarios.' });
+      } else {
+        setToast({ type: 'error', message: 'No se pudo desactivar el usuario.' });
+      }
+    } finally {
+      setActionLoadingUserId(null);
+    }
+  };
+
   return (
     <div className="space-y-8">
       {toast && (
@@ -88,11 +143,10 @@ export default function UsersPage() {
         </div>
       )}
 
-      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
         <div>
           <h1 className="font-display text-4xl font-bold">Usuarios</h1>
-          <p className="text-sm text-ink/60 mt-2">Gestión de roles, accesos y miembros del equipo</p>
+          <p className="text-sm text-ink/60 mt-2">Gestion de roles, accesos y miembros del equipo</p>
         </div>
         <Button onClick={() => setShowForm(!showForm)} size="lg">
           <Plus className="h-5 w-5" />
@@ -100,9 +154,8 @@ export default function UsersPage() {
         </Button>
       </div>
 
-      {/* Create Form */}
       {showForm && (
-        <div className="card p-8 space-y-6 slide-in">
+        <div className="card p-8 space-y-6 slide-in border border-clay/50">
           <div>
             <h2 className="font-display text-2xl font-bold">Crear nuevo usuario</h2>
             <p className="text-sm text-ink/60 mt-1">Registra miembros internos y define su rol de acceso.</p>
@@ -116,7 +169,7 @@ export default function UsersPage() {
                   <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-ink/40 pointer-events-none" />
                   <input
                     className="input pl-12"
-                    placeholder="Juan Pérez"
+                    placeholder="Juan Perez"
                     value={form.nombre}
                     onChange={(e) => setForm({ ...form, nombre: e.target.value })}
                     autoComplete="off"
@@ -145,7 +198,7 @@ export default function UsersPage() {
 
             <div className="form-row">
               <div className="form-group">
-                <label className="field-label required">Contraseña</label>
+                <label className="field-label required">Contrasena</label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-ink/40 pointer-events-none" />
                   <input
@@ -198,8 +251,7 @@ export default function UsersPage() {
         </div>
       )}
 
-      {/* Users Table */}
-      <div className="card p-8">
+      <div className="card p-8 border border-clay/50">
         <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-pine/10 rounded-lg">
@@ -221,14 +273,14 @@ export default function UsersPage() {
           <div className="py-12 text-center">
             <Users className="h-12 w-12 text-ink/20 mx-auto mb-4" />
             <h3 className="font-display text-lg mb-2">Sin usuarios</h3>
-            <p className="text-ink/60 text-sm mb-6">No hay usuarios registrados todavía</p>
+            <p className="text-ink/60 text-sm mb-6">No hay usuarios registrados todavia</p>
             <Button onClick={() => setShowForm(true)}>
               <Plus className="h-4 w-4" />
               Crear primer usuario
             </Button>
           </div>
         ) : (
-          <div className="table-container">
+          <div className="table-container rounded-xl border border-clay/40">
             <table className="table">
               <thead>
                 <tr>
@@ -236,6 +288,7 @@ export default function UsersPage() {
                   <th>Email</th>
                   <th>Rol</th>
                   <th>Unido</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -253,14 +306,68 @@ export default function UsersPage() {
                       <code className="text-xs font-mono text-ink/60">{user.email}</code>
                     </td>
                     <td>
-                      <Badge variant={user.rol === 'ADMIN' ? 'primary' : 'default'}>
-                        {user.rol === 'ADMIN' ? '👑 Administrador' : '👤 Operario'}
-                      </Badge>
+                      {editingUserId === user.id ? (
+                        <select
+                          className="select max-w-[150px]"
+                          value={editingRole}
+                          onChange={(e) => setEditingRole(e.target.value as 'ADMIN' | 'OPERARIO')}
+                          disabled={actionLoadingUserId === user.id}
+                        >
+                          <option value="OPERARIO">Operario</option>
+                          <option value="ADMIN">Administrador</option>
+                        </select>
+                      ) : (
+                        <Badge variant={user.rol === 'ADMIN' ? 'primary' : 'default'}>
+                          {user.rol === 'ADMIN' ? 'Administrador' : 'Operario'}
+                        </Badge>
+                      )}
                     </td>
                     <td>
-                      <span className="text-sm text-ink/60">
-                        {formatDate(user.createdAt)}
-                      </span>
+                      <span className="text-sm text-ink/60">{formatDate(user.createdAt)}</span>
+                    </td>
+                    <td>
+                      {editingUserId === user.id ? (
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => saveRole(user.id)}
+                            disabled={actionLoadingUserId === user.id}
+                            className="btn btn-sm btn-primary"
+                            title="Guardar"
+                          >
+                            <Save className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={cancelEditRole}
+                            disabled={actionLoadingUserId === user.id}
+                            className="btn btn-sm btn-ghost"
+                            title="Cancelar"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => startEditRole(user)}
+                            className="btn btn-sm btn-ghost"
+                            title="Editar rol"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeactivate(user)}
+                            disabled={actionLoadingUserId === user.id}
+                            className="btn btn-sm text-error hover:bg-error/10"
+                            title="Desactivar usuario"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -272,5 +379,3 @@ export default function UsersPage() {
     </div>
   );
 }
-
-

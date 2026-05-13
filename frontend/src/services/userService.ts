@@ -57,3 +57,35 @@ export const createUser = async (payload: {
   const { data } = await api.post('/users', payload);
   return data.data as User;
 };
+
+export const updateUserRole = async (userId: string, rol: 'ADMIN' | 'OPERARIO') => {
+  if (shouldUseSupabase()) {
+    const { data, error } = await supabase
+      .from('usuarios')
+      .update({ rol })
+      .eq('id', userId)
+      .select('id,nombre,email,rol,estado,"sucursalId"')
+      .single();
+
+    if (error) throw error;
+    return data as User;
+  }
+
+  const { data } = await api.patch(`/users/${userId}`, { rol });
+  return data.data as User;
+};
+
+export const deactivateUser = async (userId: string) => {
+  if (shouldUseSupabase()) {
+    const { error } = await supabase
+      .from('usuarios')
+      .update({ estado: false })
+      .eq('id', userId);
+
+    if (error) throw error;
+    return true;
+  }
+
+  await api.delete(`/users/${userId}`);
+  return true;
+};
