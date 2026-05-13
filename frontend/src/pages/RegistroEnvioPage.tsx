@@ -143,10 +143,18 @@ export default function RegistroEnvioPage() {
       navigate('/app/envios', { replace: true });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message.toLowerCase() : '';
-      if (msg.includes('foreign') || msg.includes('sucursal')) {
+      if (msg.includes('no_session') || msg.includes('actor_not_found')) {
+        setError('Sesion expirada. Cierra sesion e ingresa nuevamente.');
+      } else if (msg.includes('forbidden') || msg.includes('42501') || msg.includes('unauthorized')) {
+        setError('No tienes permisos para registrar envios.');
+      } else if (msg.includes('foreign') || msg.includes('sucursal') || msg.includes('branch')) {
         setError('Verifica que las sucursales seleccionadas sean validas.');
       } else if (msg.includes('dni')) {
         setError('El DNI ingresado no es valido. Verifica los datos.');
+      } else if (msg.includes('same_person')) {
+        setError('El remitente y destinatario no pueden tener el mismo DNI.');
+      } else if (msg.includes('same_branch')) {
+        setError('La sucursal de origen y destino no pueden ser la misma.');
       } else {
         setError('No se pudo registrar el envio. Verifica los datos e intenta nuevamente.');
       }

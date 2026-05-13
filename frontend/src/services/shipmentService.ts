@@ -1,6 +1,7 @@
 import api from './api';
 import { supabase } from '../lib/supabase';
 import type { CreateEnvioRequest, Shipment, ShipmentStatus } from '../types';
+import { getUser } from './storageService';
 import { shouldUseSupabaseDirect } from './apiMode';
 
 export const fetchShipments = async () => {
@@ -49,29 +50,32 @@ export const fetchShipmentById = async (id: string) => {
 
 export const createShipment = async (payload: CreateEnvioRequest) => {
   if (shouldUseSupabaseDirect()) {
-    const { data, error } = await supabase
-      .from('envios')
-      .insert({
-        guia: `GUIA-${Date.now()}`,
-        codigoTracking: `TRK${Date.now().toString().slice(-8)}`,
-        remitenteDni: payload.remitenteDni,
-        remitenteNombre: payload.remitenteNombre,
-        remitenteEmail: 'noreply@rutasync.com',
-        destinatarioDni: payload.destinatarioDni,
-        destinatarioNombre: payload.destinatarioNombre,
-        destinatarioEmail: 'noreply@rutasync.com',
-        peso: payload.peso,
-        tipoServicio: payload.tipoServicio,
-        descripcion: payload.descripcion,
-        estado: 'Recibido',
-        sucursalOrigenId: payload.sucursalOrigenId,
-        sucursalDestinoId: payload.sucursalDestinoId
-      })
-      .select()
-      .single();
+    const currentUser = getUser<{ email?: string }>();
+    if (!currentUser?.email) {
+      throw new Error('NO_SESSION');
+    }
+
+    const { data, error } = await supabase.rpc('create_envio_admin', {
+      p_actor_email: currentUser.email.trim().toLowerCase(),
+      p_remitente_dni: payload.remitenteDni,
+      p_remitente_nombre: payload.remitenteNombre,
+      p_destinatario_dni: payload.destinatarioDni,
+      p_destinatario_nombre: payload.destinatarioNombre,
+      p_sucursal_origen_id: payload.sucursalOrigenId,
+      p_sucursal_destino_id: payload.sucursalDestinoId,
+      p_peso: payload.peso,
+      p_dimensiones: payload.dimensiones,
+      p_tipo_servicio: payload.tipoServicio,
+      p_descripcion: payload.descripcion,
+      p_valor_declarado: payload.valorDeclarado ?? 0
+    });
 
     if (error) throw error;
-    return data;
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      throw new Error('SHIPMENT_CREATE_FAILED');
+    }
+
+    return data[0] as Shipment;
   }
 
   const { data } = await api.post('/shipments', payload);
