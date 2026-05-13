@@ -1,5 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { corsHeaders } from "../_shared/cors.ts";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+};
 
 const RENIEC_API_URL = Deno.env.get("RENIEC_API_URL") || "https://api.decolecta.com";
 const RENIEC_API_KEY = Deno.env.get("RENIEC_API_KEY");
@@ -61,14 +67,36 @@ function normalizeDniResponse(payload: any): any {
 }
 
 serve(async (req) => {
-  // CORS
+  console.log("Incoming request:", req.method, req.url);
+
+  // Manejar CORS preflight
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    console.log("Handling OPTIONS preflight request");
+    return new Response("ok", {
+      status: 200,
+      headers: corsHeaders,
+    });
   }
 
   try {
+    // Solo GET permitido
+    if (req.method !== "GET") {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Método no permitido",
+        }),
+        {
+          status: 405,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
     // Validar autenticación
     const authHeader = req.headers.get("Authorization");
+    console.log("Auth header:", authHeader ? "presente" : "ausente");
+
     if (!(await validateJWT(authHeader))) {
       return new Response(
         JSON.stringify({
@@ -84,8 +112,10 @@ serve(async (req) => {
 
     // Extraer DNI de la URL
     const url = new URL(req.url);
-    const pathParts = url.pathname.split("/");
+    const pathParts = url.pathname.split("/").filter(Boolean);
     const dni = pathParts[pathParts.length - 1];
+
+    console.log("DNI extraído:", dni);
 
     // Validar DNI
     if (!dni || !/^\d{8}$/.test(dni)) {
@@ -103,6 +133,7 @@ serve(async (req) => {
 
     // Validar que API key esté configurada
     if (!RENIEC_API_KEY) {
+      console.error("RENIEC_API_KEY no está configurada");
       return new Response(
         JSON.stringify({
           success: false,
@@ -115,17 +146,25 @@ serve(async (req) => {
       );
     }
 
-    // Llamar a API de RENIEC
-    const response = await fetch(`${RENIEC_API_URL}/v1/reniec/dni`, {
+    console.log("Llamando a RENIEC API para DNI:", dni);
+
+    // Llamar a Decolecta. En GET el DNI debe viajar como query param, no en body.
+    const decolectaUrl = new URL(`${RENIEC_API_URL}/v1/reniec/dni`);
+    decolectaUrl.searchParams.set("numero", dni);
+
+    const response = await fetch(decolectaUrl.toString(), {
       method: "GET",
       headers: {
         Authorization: `Bearer ${RENIEC_API_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ numero: dni }),
     });
 
+    console.log("RENIEC Response status:", response.status);
+
     const data = await response.json();
+    console.log("RENIEC Response data:", data);
+
     const normalized = normalizeDniResponse(data);
 
     if (!normalized.valido) {
@@ -152,7 +191,7 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error("Error en dni-lookup:", error);
+    console.error("Error en dni:", error);
     return new Response(
       JSON.stringify({
         success: false,
@@ -165,3 +204,4 @@ serve(async (req) => {
     );
   }
 });
+
