@@ -43,12 +43,12 @@ app.get('/health', (req, res) => {
 const buildApp = (dependencies) => {
   const router = buildRoutes(dependencies);
   app.use('/api', router);
+  
+  // 404 Middleware (después de las rutas)
+  app.use(notFoundMiddleware);
+  
+  // Error Middleware (último)
+  app.use(errorMiddleware);
 };
-
-// 404 Middleware
-app.use(notFoundMiddleware);
-
-// Error Middleware (último)
-app.use(errorMiddleware);
 
 module.exports = { app, buildApp };

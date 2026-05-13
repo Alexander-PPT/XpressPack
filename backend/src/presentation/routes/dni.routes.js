@@ -1,10 +1,10 @@
 const express = require('express');
-const { authorize } = require('../middlewares/auth.middleware');
 
 const buildDniRoutes = (dniController) => {
   const router = express.Router();
 
-  router.get('/:dni', authorize(['ADMIN', 'OPERARIO']), dniController.lookup);
+  // Permitir que cualquier usuario autenticado consulte DNIs
+  router.get('/:dni', dniController.lookup);
 
   return router;
 };
