@@ -236,7 +236,7 @@ as $$
   from public.usuarios u
   where lower(u.email) = lower(trim(p_email))
     and u.estado = true
-    and u."passwordHash" = extensions.crypt(p_password, u."passwordHash")
+    and u."passwordHash" = extensions.crypt(trim(p_password), u."passwordHash")
   limit 1;
 $$;
 
@@ -292,7 +292,7 @@ begin
     raise exception 'INVALID_EMAIL' using errcode = 'P0001';
   end if;
 
-  if p_password is null or length(p_password) < 6 then
+  if p_password is null or length(trim(p_password)) < 6 then
     raise exception 'INVALID_PASSWORD' using errcode = 'P0001';
   end if;
 
@@ -314,11 +314,11 @@ begin
   values (
     trim(p_nombre),
     lower(trim(p_email)),
-    extensions.crypt(p_password, extensions.gen_salt('bf')),
+    extensions.crypt(trim(p_password), extensions.gen_salt('bf')),
     v_target_rol::public.rol_usuario,
     p_sucursal_id,
     true,
-    p_telefono_contacto
+    nullif(trim(coalesce(p_telefono_contacto, '')), '')
   )
   returning
     usuarios.id,

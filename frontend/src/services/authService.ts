@@ -19,10 +19,11 @@ const normalizeUser = (raw: Record<string, unknown>): User => ({
 
 export const login = async (email: string, password: string) => {
   const normalizedEmail = email.trim().toLowerCase();
+  const normalizedPassword = password.trim();
 
   const { data, error } = await supabase.rpc('login_usuario', {
     p_email: normalizedEmail,
-    p_password: password,
+    p_password: normalizedPassword,
   });
 
   if (error) {

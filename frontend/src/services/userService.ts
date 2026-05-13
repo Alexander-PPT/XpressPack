@@ -34,10 +34,10 @@ export const createUser = async (payload: {
     }
 
     const { data, error } = await supabase.rpc('create_usuario_admin', {
-      p_actor_email: currentUser.email,
-      p_nombre: payload.nombre,
-      p_email: payload.email,
-      p_password: payload.password,
+      p_actor_email: currentUser.email.trim().toLowerCase(),
+      p_nombre: payload.nombre.trim(),
+      p_email: payload.email.trim().toLowerCase(),
+      p_password: payload.password.trim(),
       p_rol: payload.rol,
       p_telefono_contacto: payload.telefonoContacto ?? null,
     });

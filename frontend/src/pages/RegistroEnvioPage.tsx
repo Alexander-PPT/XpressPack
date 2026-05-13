@@ -11,6 +11,7 @@ import { useDniLookup } from '../hooks/useDniLookup';
 export default function RegistroEnvioPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [loadingSucursales, setLoadingSucursales] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sucursales, setSucursales] = useState<Sucursal[]>([]);
   const [step, setStep] = useState(1);
@@ -32,11 +33,19 @@ export default function RegistroEnvioPage() {
 
   useEffect(() => {
     let isMounted = true;
+    setLoadingSucursales(true);
     fetchSucursales()
       .then((data) => {
         if (isMounted) setSucursales(data);
       })
-      .catch(() => {});
+      .catch(() => {
+        if (isMounted) {
+          setError('No se pudieron cargar las sucursales. Verifica que existan sucursales activas.');
+        }
+      })
+      .finally(() => {
+        if (isMounted) setLoadingSucursales(false);
+      });
 
     return () => {
       isMounted = false;
@@ -321,10 +330,12 @@ export default function RegistroEnvioPage() {
                   name="sucursalOrigenId"
                   value={formData.sucursalOrigenId}
                   onChange={handleChange}
-                  disabled={loading}
+                  disabled={loading || loadingSucursales || sucursales.length === 0}
                   required
                 >
-                  <option value="">Seleccionar...</option>
+                  <option value="">
+                    {loadingSucursales ? 'Cargando sucursales...' : 'Seleccionar...'}
+                  </option>
                   {sucursales.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.nombre} ({s.ciudad})
@@ -339,10 +350,12 @@ export default function RegistroEnvioPage() {
                   name="sucursalDestinoId"
                   value={formData.sucursalDestinoId}
                   onChange={handleChange}
-                  disabled={loading}
+                  disabled={loading || loadingSucursales || sucursales.length === 0}
                   required
                 >
-                  <option value="">Seleccionar...</option>
+                  <option value="">
+                    {loadingSucursales ? 'Cargando sucursales...' : 'Seleccionar...'}
+                  </option>
                   {sucursales.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.nombre} ({s.ciudad})
@@ -351,6 +364,14 @@ export default function RegistroEnvioPage() {
                 </select>
               </div>
             </div>
+
+            {!loadingSucursales && sucursales.length === 0 && (
+              <Alert
+                type="warning"
+                message="No hay sucursales activas para seleccionar. Primero registra una sucursal desde el menu Sucursales."
+                dismissible={false}
+              />
+            )}
 
             <div className="form-row">
               <div className="form-group">

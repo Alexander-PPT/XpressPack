@@ -1,7 +1,34 @@
--- Ejecutar en Supabase SQL Editor
--- Crea un RPC para alta de usuarios desde frontend con validacion de ADMIN.
+-- Ejecutar en Supabase SQL Editor.
+-- Corrige login/creacion de usuarios y sucursales con funciones RPC consistentes.
 
 create extension if not exists pgcrypto with schema extensions;
+
+create or replace function public.login_usuario(p_email text, p_password text)
+returns table (
+  id uuid,
+  nombre text,
+  email text,
+  rol text,
+  "sucursalId" uuid,
+  estado boolean
+)
+language sql
+security definer
+set search_path = public, extensions
+as $$
+  select
+    u.id,
+    u.nombre::text,
+    u.email::text,
+    u.rol::text,
+    u."sucursalId",
+    u.estado
+  from public.usuarios u
+  where lower(u.email) = lower(trim(p_email))
+    and u.estado = true
+    and u."passwordHash" = extensions.crypt(trim(p_password), u."passwordHash")
+  limit 1;
+$$;
 
 create or replace function public.create_usuario_admin(
   p_actor_email text,
@@ -9,7 +36,8 @@ create or replace function public.create_usuario_admin(
   p_email text,
   p_password text,
   p_rol text default 'OPERARIO',
-  p_telefono_contacto text default null
+  p_telefono_contacto text default null,
+  p_sucursal_id uuid default null
 )
 returns table (
   id uuid,
@@ -30,7 +58,7 @@ declare
 begin
   select u.rol::text, u.estado
     into v_actor_rol, v_actor_activo
-  from usuarios u
+  from public.usuarios u
   where lower(u.email) = lower(trim(p_actor_email))
   limit 1;
 
@@ -64,11 +92,12 @@ begin
   end if;
 
   return query
-  insert into usuarios (
+  insert into public.usuarios (
     nombre,
     email,
     "passwordHash",
     rol,
+    "sucursalId",
     estado,
     "telefonoContacto"
   )
@@ -76,7 +105,8 @@ begin
     trim(p_nombre),
     lower(trim(p_email)),
     extensions.crypt(trim(p_password), extensions.gen_salt('bf')),
-    v_target_rol::rol_usuario,
+    v_target_rol::public.rol_usuario,
+    p_sucursal_id,
     true,
     nullif(trim(coalesce(p_telefono_contacto, '')), '')
   )
@@ -90,5 +120,14 @@ begin
 end;
 $$;
 
-revoke all on function public.create_usuario_admin(text, text, text, text, text, text) from public;
-grant execute on function public.create_usuario_admin(text, text, text, text, text, text) to anon, authenticated;
+revoke all on function public.login_usuario(text, text) from public;
+grant execute on function public.login_usuario(text, text) to anon, authenticated;
+
+revoke all on function public.create_usuario_admin(text, text, text, text, text, text, uuid) from public;
+grant execute on function public.create_usuario_admin(text, text, text, text, text, text, uuid) to anon, authenticated;
+
+-- Opcional para arreglar un usuario ya creado durante pruebas.
+-- Cambia el email y la clave antes de ejecutar si necesitas reparar otro usuario.
+-- update public.usuarios
+-- set "passwordHash" = extensions.crypt('demo9876', extensions.gen_salt('bf'))
+-- where lower(email) = lower('demo@gmail.com');
