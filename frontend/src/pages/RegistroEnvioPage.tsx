@@ -110,6 +110,10 @@ export default function RegistroEnvioPage() {
         setError('Selecciona sucursal origen y destino');
         return false;
       }
+      if (formData.sucursalOrigenId === formData.sucursalDestinoId) {
+        setError('La sucursal de origen y destino no pueden ser la misma');
+        return false;
+      }
       if (!formData.peso || !formData.dimensiones) {
         setError('Completa peso y dimensiones');
         return false;
@@ -169,6 +173,8 @@ export default function RegistroEnvioPage() {
     { number: 3, title: 'Sucursales y peso', icon: <MapPin className="h-5 w-5" /> },
     { number: 4, title: 'Detalles', icon: <FileText className="h-5 w-5" /> }
   ];
+
+  const availableDestinationBranches = sucursales.filter((s) => s.id !== formData.sucursalOrigenId);
 
   return (
     <div className="space-y-8 max-w-3xl">
@@ -337,7 +343,14 @@ export default function RegistroEnvioPage() {
                   className="select"
                   name="sucursalOrigenId"
                   value={formData.sucursalOrigenId}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    const nextOriginId = e.target.value;
+                    setFormData((prev) => ({
+                      ...prev,
+                      sucursalOrigenId: nextOriginId,
+                      sucursalDestinoId: prev.sucursalDestinoId === nextOriginId ? '' : prev.sucursalDestinoId
+                    }));
+                  }}
                   disabled={loading || loadingSucursales || sucursales.length === 0}
                   required
                 >
@@ -364,14 +377,25 @@ export default function RegistroEnvioPage() {
                   <option value="">
                     {loadingSucursales ? 'Cargando sucursales...' : 'Seleccionar...'}
                   </option>
-                  {sucursales.map((s) => (
+                  {availableDestinationBranches.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.nombre} ({s.ciudad})
                     </option>
                   ))}
                 </select>
+                {formData.sucursalOrigenId && availableDestinationBranches.length === 0 && (
+                  <p className="text-xs text-error mt-1">Necesitas otra sucursal activa para seleccionar destino.</p>
+                )}
               </div>
             </div>
+
+            {formData.sucursalOrigenId && formData.sucursalDestinoId && formData.sucursalOrigenId === formData.sucursalDestinoId && (
+              <Alert
+                type="warning"
+                message="Origen y destino no pueden ser la misma sucursal. Selecciona una sede diferente para continuar."
+                dismissible={false}
+              />
+            )}
 
             {!loadingSucursales && sucursales.length === 0 && (
               <Alert
