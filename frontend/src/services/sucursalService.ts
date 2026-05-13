@@ -1,14 +1,10 @@
 import api from './api';
 import { supabase } from '../lib/supabase';
 import type { Sucursal } from '../types';
-
-const shouldUseSupabase = () => {
-  const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
-  return !apiUrl || apiUrl.includes('localhost');
-};
+import { shouldUseSupabaseDirect } from './apiMode';
 
 export const fetchSucursales = async () => {
-  if (shouldUseSupabase()) {
+  if (shouldUseSupabaseDirect()) {
     const { data, error } = await supabase
       .from('sucursales')
       .select('*')
@@ -30,7 +26,7 @@ export const createSucursal = async (payload: {
   departamento: string;
   direccion: string;
 }) => {
-  if (shouldUseSupabase()) {
+  if (shouldUseSupabaseDirect()) {
     const { data, error } = await supabase
       .from('sucursales')
       .insert({

@@ -1,4 +1,4 @@
-import api from './api';
+import { getToken } from './storageService';
 
 export interface DniResult {
   nombreCompleto: string;
@@ -21,7 +21,11 @@ interface DniApiResponse {
     apellido_materno?: string;
     second_last_name?: string;
   };
+  error?: string;
 }
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
 
 const normalizeDniResult = (payload: DniApiResponse): DniResult => {
   const data = payload.data ?? {};
@@ -35,7 +39,7 @@ const normalizeDniResult = (payload: DniApiResponse): DniResult => {
     [nombres, apellidoPaterno, apellidoMaterno].filter(Boolean).join(' ').trim();
 
   if (!nombreCompleto) {
-    throw new Error('No se encontraron nombres para el DNI ingresado');
+    throw new Error(payload.error || 'No se encontraron nombres para el DNI ingresado');
   }
 
   return {
@@ -51,6 +55,23 @@ export const consultarDni = async (dni: string): Promise<DniResult> => {
     throw new Error('DNI invalido');
   }
 
-  const { data } = await api.get<DniApiResponse>(`/dni/${dni}`);
-  return normalizeDniResult(data);
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Supabase no esta configurado para consultar DNI');
+  }
+
+  const response = await fetch(`${supabaseUrl}/functions/v1/dni/${dni}`, {
+    method: 'GET',
+    headers: {
+      apikey: supabaseKey,
+      Authorization: `Bearer ${getToken() || supabaseKey}`
+    }
+  });
+
+  const payload = (await response.json()) as DniApiResponse;
+
+  if (!response.ok) {
+    throw new Error(payload.error || 'No se pudo consultar el DNI');
+  }
+
+  return normalizeDniResult(payload);
 };

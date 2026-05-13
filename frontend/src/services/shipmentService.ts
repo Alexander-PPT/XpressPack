@@ -1,14 +1,10 @@
 import api from './api';
 import { supabase } from '../lib/supabase';
 import type { CreateEnvioRequest, Shipment, ShipmentStatus } from '../types';
-
-const shouldUseSupabase = () => {
-  const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
-  return !apiUrl || apiUrl.includes('localhost');
-};
+import { shouldUseSupabaseDirect } from './apiMode';
 
 export const fetchShipments = async () => {
-  if (shouldUseSupabase()) {
+  if (shouldUseSupabaseDirect()) {
     const { data, error } = await supabase
       .from('envios')
       .select('*')
@@ -23,7 +19,7 @@ export const fetchShipments = async () => {
 };
 
 export const fetchShipmentStats = async () => {
-  if (shouldUseSupabase()) {
+  if (shouldUseSupabaseDirect()) {
     const shipments = await fetchShipments();
     return shipments.reduce<Record<string, number>>((acc, s) => {
       acc[s.estado] = (acc[s.estado] || 0) + 1;
@@ -36,7 +32,7 @@ export const fetchShipmentStats = async () => {
 };
 
 export const fetchShipmentById = async (id: string) => {
-  if (shouldUseSupabase()) {
+  if (shouldUseSupabaseDirect()) {
     const { data, error } = await supabase
       .from('envios')
       .select('*')
@@ -52,7 +48,7 @@ export const fetchShipmentById = async (id: string) => {
 };
 
 export const createShipment = async (payload: CreateEnvioRequest) => {
-  if (shouldUseSupabase()) {
+  if (shouldUseSupabaseDirect()) {
     const { data, error } = await supabase
       .from('envios')
       .insert({
@@ -83,7 +79,7 @@ export const createShipment = async (payload: CreateEnvioRequest) => {
 };
 
 export const updateShipmentStatus = async (id: string, estado: ShipmentStatus) => {
-  if (shouldUseSupabase()) {
+  if (shouldUseSupabaseDirect()) {
     const { data, error } = await supabase
       .from('envios')
       .update({ estado })

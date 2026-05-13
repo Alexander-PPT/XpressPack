@@ -2,14 +2,10 @@ import api from './api';
 import { supabase } from '../lib/supabase';
 import type { User } from '../types';
 import { getUser } from './storageService';
-
-const shouldUseSupabase = () => {
-  const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
-  return !apiUrl || apiUrl.includes('localhost');
-};
+import { shouldUseSupabaseDirect } from './apiMode';
 
 export const fetchUsers = async () => {
-  if (shouldUseSupabase()) {
+  if (shouldUseSupabaseDirect()) {
     const { data, error } = await supabase
       .from('usuarios')
       .select('id,nombre,email,rol,estado,"sucursalId"')
@@ -31,7 +27,7 @@ export const createUser = async (payload: {
   password: string;
   telefonoContacto?: string;
 }) => {
-  if (shouldUseSupabase()) {
+  if (shouldUseSupabaseDirect()) {
     const currentUser = getUser<User>();
     if (!currentUser?.email) {
       throw new Error('NO_SESSION');
@@ -59,7 +55,7 @@ export const createUser = async (payload: {
 };
 
 export const updateUserRole = async (userId: string, rol: 'ADMIN' | 'OPERARIO') => {
-  if (shouldUseSupabase()) {
+  if (shouldUseSupabaseDirect()) {
     const { data, error } = await supabase
       .from('usuarios')
       .update({ rol })
@@ -76,7 +72,7 @@ export const updateUserRole = async (userId: string, rol: 'ADMIN' | 'OPERARIO') 
 };
 
 export const deactivateUser = async (userId: string) => {
-  if (shouldUseSupabase()) {
+  if (shouldUseSupabaseDirect()) {
     const { error } = await supabase
       .from('usuarios')
       .update({ estado: false })

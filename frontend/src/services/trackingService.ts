@@ -1,14 +1,10 @@
 import api from './api';
 import { supabase } from '../lib/supabase';
 import type { Shipment } from '../types';
-
-const shouldUseSupabase = () => {
-  const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
-  return !apiUrl || apiUrl.includes('localhost');
-};
+import { shouldUseSupabaseDirect } from './apiMode';
 
 export const fetchTracking = async (codigo: string) => {
-  if (shouldUseSupabase()) {
+  if (shouldUseSupabaseDirect()) {
     const { data, error } = await supabase
       .from('envios')
       .select('*')
