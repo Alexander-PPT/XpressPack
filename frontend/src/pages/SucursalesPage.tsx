@@ -3,12 +3,14 @@ import { createSucursal, fetchSucursales } from '../services/sucursalService';
 import { MapPin, Building2, Plus, Code, Home, MapIcon } from 'lucide-react';
 import type { Sucursal } from '../types';
 import Button from '../components/Button';
+import Toast from '../components/Toast';
 
 export default function SucursalesPage() {
   const [sucursales, setSucursales] = useState<Sucursal[]>([]);
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [toast, setToast] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
   const [form, setForm] = useState({
     codigo: '',
     nombre: '',
@@ -38,6 +40,12 @@ export default function SucursalesPage() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!toast) return;
+    const timeout = window.setTimeout(() => setToast(null), 3500);
+    return () => window.clearTimeout(timeout);
+  }, [toast]);
+
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     setCreating(true);
@@ -46,8 +54,21 @@ export default function SucursalesPage() {
       setSucursales((prev) => [created, ...prev]);
       setForm({ codigo: '', nombre: '', ciudad: '', departamento: '', direccion: '' });
       setShowForm(false);
-    } catch (error) {
+      setToast({ type: 'success', message: `Sucursal ${created.nombre} creada correctamente.` });
+    } catch (error: unknown) {
       console.error('Error creating sucursal:', error);
+      const msg = error instanceof Error ? error.message.toLowerCase() : '';
+      if (msg.includes('no_session')) {
+        setToast({ type: 'error', message: 'Sesion expirada. Vuelve a iniciar sesion.' });
+      } else if (msg.includes('forbidden') || msg.includes('401') || msg.includes('permission') || msg.includes('unauthorized') || msg.includes('42501')) {
+        setToast({ type: 'error', message: 'No tienes permisos para crear sucursales. Inicia sesion con un admin valido.' });
+      } else if (msg.includes('duplicate') || msg.includes('unique') || msg.includes('already')) {
+        setToast({ type: 'error', message: 'Ya existe una sucursal con ese codigo.' });
+      } else if (msg.includes('invalid')) {
+        setToast({ type: 'error', message: 'Verifica los datos de la sucursal antes de guardar.' });
+      } else {
+        setToast({ type: 'error', message: 'No se pudo crear la sucursal. Intenta nuevamente.' });
+      }
     } finally {
       setCreating(false);
     }
@@ -55,6 +76,12 @@ export default function SucursalesPage() {
 
   return (
     <div className="space-y-8">
+      {toast && (
+        <div className="fixed top-5 right-5 z-50 w-[min(92vw,420px)] pointer-events-none">
+          <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
         <div>
