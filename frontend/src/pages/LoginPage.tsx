@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../services/authService';
 import { Package, Mail, Lock, Eye, EyeOff, ShieldCheck, Truck, BarChart3, BellRing } from 'lucide-react';
 import Button from '../components/Button';
@@ -120,6 +120,15 @@ export default function LoginPage() {
                     Contacta soporte
                   </a>
                 </p>
+
+                <div className="border-t border-clay/25 pt-4 text-center">
+                  <Link
+                    to="/tracking"
+                    className="text-sm font-semibold text-pine transition hover:text-pineDark"
+                  >
+                    Volver al inicio publico
+                  </Link>
+                </div>
               </form>
             </div>
           </div>
