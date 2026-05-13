@@ -1,9 +1,14 @@
 const pdfMake = require('pdfmake/build/pdfmake');
-const pdfFonts = require('pdfmake/build/vfs_fonts');
 const AppError = require('../../shared/utils/app-error');
 const reportTemplates = require('../../shared/templates/pdf/report-templates');
 
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
+try {
+  const pdfFonts = require('pdfmake/build/vfs_fonts');
+  pdfMake.vfs = pdfFonts.pdfMake.vfs;
+} catch (error) {
+  // Si no está disponible pdfFonts, continuar sin VFS
+  console.warn('pdfFonts no disponible, usando configuración por defecto');
+}
 
 class ReportService {
   constructor(shipmentRepository) {
