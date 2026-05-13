@@ -36,8 +36,10 @@ export default function ReportsPage() {
       const msg = err instanceof Error ? err.message : '';
       if (msg.includes('403')) {
         setError('Solo un administrador puede descargar reportes PDF.');
+      } else if (msg.includes('POPUP_BLOCKED')) {
+        setError('El navegador bloqueo la ventana del reporte. Permite ventanas emergentes para descargar el PDF.');
       } else {
-        setError('No se pudo generar el PDF. Verifica la conexion con el backend e intenta nuevamente.');
+        setError('No se pudo generar el PDF. Verifica los datos e intenta nuevamente.');
       }
     } finally {
       setDownloading(null);
