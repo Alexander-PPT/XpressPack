@@ -18,7 +18,7 @@ const NAV_ITEMS: Array<{
 }> = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/app', roles: ['ADMIN', 'OPERARIO'] },
   { icon: Package, label: 'Envios', href: '/app/envios', roles: ['ADMIN', 'OPERARIO'] },
-  { icon: FileText, label: 'Reportes', href: '/app/reportes', roles: ['ADMIN', 'OPERARIO'] },
+  { icon: FileText, label: 'Reportes', href: '/app/reportes', roles: ['ADMIN'] },
   { icon: Users, label: 'Usuarios', href: '/app/usuarios', roles: ['ADMIN'] },
   { icon: Building2, label: 'Sucursales', href: '/app/sucursales', roles: ['ADMIN'] },
 ];

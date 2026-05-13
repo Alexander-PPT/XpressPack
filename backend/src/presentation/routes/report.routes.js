@@ -6,22 +6,22 @@ const buildReportRoutes = (dependencies) => {
   const { reportController } = dependencies.controllers;
 
   router.get('/envios',
-    authorize(['ADMIN', 'OPERARIO']),
+    authorize(['ADMIN']),
     reportController.getShipmentsReport
   );
 
   router.get('/envios/:id/historial',
-    authorize(['ADMIN', 'OPERARIO']),
+    authorize(['ADMIN']),
     reportController.getShipmentHistoryReport
   );
 
   router.get('/envios/:id/comprobante',
-    authorize(['ADMIN', 'OPERARIO']),
+    authorize(['ADMIN']),
     reportController.getShipmentInvoiceReport
   );
 
   router.get('/estadisticas',
-    authorize(['ADMIN', 'OPERARIO']),
+    authorize(['ADMIN']),
     reportController.getStatsReport
   );
 

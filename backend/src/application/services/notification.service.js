@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 const { v4: uuidv4 } = require('uuid');
-const AppError = require('../../shared/utils/appError');
+const AppError = require('../../shared/utils/app-error');
 const { NOTIFICATION_STATUS, NOTIFICATION_TYPES } = require('../../shared/constants');
 const emailTemplates = require('../../shared/templates/email');
 const env = require('../../config/env');

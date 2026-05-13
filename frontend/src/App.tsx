@@ -38,7 +38,14 @@ function App() {
         <Route path="envios" element={<ShipmentsPage />} />
         <Route path="envios/nuevo" element={<RegistroEnvioPage />} />
         <Route path="envios/:id" element={<DetalleEnvioPage />} />
-        <Route path="reportes" element={<ReportsPage />} />
+        <Route
+          path="reportes"
+          element={
+            <RoleRoute allowedRoles={['ADMIN']}>
+              <ReportsPage />
+            </RoleRoute>
+          }
+        />
         <Route
           path="usuarios"
           element={

@@ -1,5 +1,5 @@
-const asyncHandler = require('../../shared/utils/asyncHandler');
-const AppError = require('../../shared/utils/appError');
+const asyncHandler = require('../../shared/utils/async-handler');
+const AppError = require('../../shared/utils/app-error');
 
 /**
  * NotificationController
