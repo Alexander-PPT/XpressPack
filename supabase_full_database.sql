@@ -240,6 +240,8 @@ as $$
   limit 1;
 $$;
 
+drop function if exists public.create_usuario_admin(text, text, text, text, text, text);
+
 create or replace function public.create_usuario_admin(
   p_actor_email text,
   p_nombre text,

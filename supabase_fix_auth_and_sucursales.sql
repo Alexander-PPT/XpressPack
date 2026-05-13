@@ -3,6 +3,9 @@
 
 create extension if not exists pgcrypto with schema extensions;
 
+-- Limpia la version antigua de 6 parametros para que PostgREST no llame una firma vieja.
+drop function if exists public.create_usuario_admin(text, text, text, text, text, text);
+
 create or replace function public.login_usuario(p_email text, p_password text)
 returns table (
   id uuid,
